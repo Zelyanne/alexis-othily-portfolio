@@ -1,0 +1,15 @@
+.DS_Store
+node_modules/
+dist/
+.env
+.env.*
+.od-skills/
+tmp/
+portfolio alexis/
+*.artifact.json
+critique.json
+brand-spec.md
+mqjomfn3-image.png
+mqjon5pv-*.png
+mqjoohu6-*.png
+plpl
