@@ -22,6 +22,8 @@ const projects = [
     href: 'https://aizelyan.duckdns.org/',
     summary:
       "Agent IA orienté Google Workspace pour orchestrer des tâches bureautiques, connecter des outils et planifier des actions différées.",
+    result: 'Orchestration Google Workspace',
+    role: 'Architecture agentique',
     stack: ['LangGraph', 'TypeScript', 'Mistral', 'MCP'],
     tone: 'teal',
   },
@@ -32,6 +34,8 @@ const projects = [
     href: 'https://lin-ai.duckdns.org/',
     summary:
       'Pipeline agentique qui transforme des mots-clés en posts LinkedIn structurés, planifiés et prêts à publier.',
+    result: 'Génération + planification',
+    role: 'Pipeline IA',
     stack: ['LangGraph', 'Python', 'Mistral'],
     tone: 'rose',
   },
@@ -42,9 +46,16 @@ const projects = [
     href: 'https://vps-55e5f624.vps.ovh.net/',
     summary:
       'Backend Python/Flask avec gestion utilisateurs, contenus pédagogiques, progression, quiz et évaluations automatiques.',
+    result: 'API e-learning complète',
+    role: 'Backend produit',
     stack: ['Python', 'Flask', 'SQL'],
     tone: 'amber',
   },
+] as const
+
+const highlights = [
+  ['3', 'produits live'],
+  ['YOLOv7', 'vision appliquée'],
 ] as const
 
 const skills = [
@@ -73,7 +84,7 @@ const experiences = [
   {
     date: 'Déc. 2025 - Avr. 2026',
     title: 'EdTech Program Manager - Neural Bridge',
-    text: "Conception de contenus pédagogiques pour l'apprentissage du code et solutions IA adaptées aux apprenants de plus de 40 ans.",
+    text: "Conception de contenus pédagogiques pour l'apprentissage du code et solutions IA adaptées aux apprenants adultes.",
   },
   {
     date: 'Mai 2026',
@@ -91,6 +102,12 @@ const experiences = [
     text: 'PostgreSQL sous Docker, backend FastAPI, optimisation de flux de trésorerie et modèles YOLO en photogrammétrie.',
   },
 ]
+
+const credentials = [
+  ['Hugging Face', 'Certificate of Excellence - Agents IA'],
+  ['Zindi', '8e / 70 - Your Voice, Your Device, Your Language'],
+  ['Zindi', '47e / 245 - CGIAR Root Volume Estimation'],
+] as const
 
 function Layout() {
   return (
@@ -128,6 +145,10 @@ function HomePage() {
             données, computer vision et backends Python prêts pour des
             utilisateurs réels.
           </p>
+          <p className="heroNote">
+            Mon terrain: transformer une idée IA en workflow testable, API
+            utilisable et interface assez claire pour sortir du prototype.
+          </p>
           <div className="actions">
             <a className="button primary" href="#projects">
               Voir les projets
@@ -140,9 +161,12 @@ function HomePage() {
             </Link>
           </div>
           <div className="proof" aria-label="Résumé rapide">
-            <strong>LangGraph</strong>
-            <strong>Computer vision</strong>
-            <strong>Python backend</strong>
+            {highlights.map(([value, label]) => (
+              <div className="proofItem" key={label}>
+                <strong>{value}</strong>
+                <span>{label}</span>
+              </div>
+            ))}
           </div>
         </div>
         <figure className="portrait">
@@ -164,6 +188,16 @@ function HomePage() {
                 <h3>{project.title}</h3>
                 <p>{project.summary}</p>
               </div>
+              <dl className="projectMeta">
+                <div>
+                  <dt>Rôle</dt>
+                  <dd>{project.role}</dd>
+                </div>
+                <div>
+                  <dt>Impact</dt>
+                  <dd>{project.result}</dd>
+                </div>
+              </dl>
               <div className="stack">
                 {project.stack.map((item) => (
                   <span key={item}>{item}</span>
@@ -186,10 +220,20 @@ function HomePage() {
             les données et une interface exploitable.
           </p>
         </div>
-        <div className="skillList">
-          {skills.map((skill) => (
-            <span key={skill}>{skill}</span>
-          ))}
+        <div className="skillColumn">
+          <div className="skillList">
+            {skills.map((skill) => (
+              <span key={skill}>{skill}</span>
+            ))}
+          </div>
+          <div className="credentialList" aria-label="Certifications et résultats">
+            {credentials.map(([source, label]) => (
+              <article key={label}>
+                <span>{source}</span>
+                <strong>{label}</strong>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 

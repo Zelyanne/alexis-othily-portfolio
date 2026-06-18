@@ -2,6 +2,7 @@
   --bg: #080d0c;
   --surface: #121918;
   --surface-2: #18211f;
+  --ink: #0b1110;
   --fg: #f3f8f6;
   --muted: #a5b2ad;
   --line: #28413a;
@@ -28,7 +29,7 @@ body {
   min-width: 320px;
   margin: 0;
   background:
-    linear-gradient(180deg, rgba(94, 226, 160, 0.08), transparent 360px),
+    linear-gradient(180deg, rgba(94, 226, 160, 0.1), transparent 340px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
     linear-gradient(180deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
     var(--bg);
@@ -112,8 +113,9 @@ a:focus-visible {
   padding: 8px 10px 8px 18px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 999px;
-  background: rgba(8, 13, 12, 0.82);
+  background: rgba(8, 13, 12, 0.86);
   backdrop-filter: blur(18px);
+  box-shadow: 0 18px 80px rgba(0, 0, 0, 0.28);
 }
 
 .brand,
@@ -169,7 +171,7 @@ a:focus-visible {
 .hero {
   min-height: 720px;
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.72fr);
+  grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.7fr);
   gap: 54px;
   align-items: center;
   padding: 76px 0 62px;
@@ -196,6 +198,14 @@ a:focus-visible {
   font-size: 18px;
 }
 
+.heroNote {
+  max-width: 56ch;
+  margin-top: 18px;
+  padding-left: 16px;
+  border-left: 2px solid var(--accent);
+  color: #dce7e3;
+}
+
 .actions,
 .contactLinks {
   flex-wrap: wrap;
@@ -208,10 +218,13 @@ a:focus-visible {
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.045);
   color: var(--fg);
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
 }
 
-.button:hover {
+.button:hover,
+.button:focus-visible {
   border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.075);
 }
 
 .button.primary {
@@ -221,12 +234,13 @@ a:focus-visible {
 }
 
 .proof {
-  gap: 10px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
   margin-top: 44px;
+  max-width: 460px;
 }
 
-.proof strong,
 .skillList span,
 .stack span,
 .tag {
@@ -238,10 +252,26 @@ a:focus-visible {
   font-weight: 800;
 }
 
-.proof strong {
-  padding: 0 13px;
+.proofItem {
+  min-height: 94px;
+  display: grid;
+  align-content: center;
+  gap: 6px;
+  padding: 16px;
   border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.proofItem strong {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.proofItem span {
   color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .portrait {
@@ -257,7 +287,7 @@ a:focus-visible {
   content: "Alexis";
   position: absolute;
   top: 95px;
-  color: rgba(255, 255, 255, 0.13);
+  color: rgba(255, 255, 255, 0.12);
   font-size: 110px;
   font-weight: 800;
   line-height: 1;
@@ -305,7 +335,7 @@ a:focus-visible {
 }
 
 .projectCard {
-  min-height: 360px;
+  min-height: 410px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -314,11 +344,15 @@ a:focus-visible {
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-top: 4px solid var(--accent);
   border-radius: 8px;
-  background: var(--surface);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 120px),
+    var(--surface);
+  transition: border-color 180ms ease, transform 180ms ease, background 180ms ease;
 }
 
 .projectCard:hover {
   transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .projectCard.rose {
@@ -346,6 +380,34 @@ a:focus-visible {
   font-size: 15px;
 }
 
+.projectMeta {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 14px 0;
+  border-block: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.projectMeta div {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 12px;
+}
+
+.projectMeta dt {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.projectMeta dd {
+  margin: 0;
+  color: var(--fg);
+  font-size: 13px;
+  font-weight: 800;
+}
+
 .projectCard > a {
   min-height: 44px;
   align-self: flex-start;
@@ -355,11 +417,20 @@ a:focus-visible {
   font-weight: 800;
 }
 
+.projectCard > a:hover {
+  color: var(--accent);
+}
+
 .stack,
-.skillList {
+.skillList,
+.skillColumn {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.skillColumn {
+  align-items: flex-start;
 }
 
 .stack span,
@@ -367,6 +438,36 @@ a:focus-visible {
   padding: 0 10px;
   background: rgba(255, 255, 255, 0.055);
   color: var(--fg);
+}
+
+.credentialList {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.credentialList article {
+  min-height: 112px;
+  display: grid;
+  align-content: space-between;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: var(--surface-2);
+}
+
+.credentialList span {
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.credentialList strong {
+  font-size: 14px;
+  line-height: 1.25;
 }
 
 .split {
@@ -407,6 +508,7 @@ a:focus-visible {
   grid-template-columns: minmax(0, 1fr) minmax(300px, 0.6fr);
   gap: 22px;
   align-items: center;
+  padding-bottom: 86px;
 }
 
 .cvPage h1 {
@@ -441,6 +543,38 @@ a:focus-visible {
   }
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  .heroCopy,
+  .portrait,
+  .projectCard {
+    animation: riseIn 460ms ease both;
+  }
+
+  .portrait {
+    animation-delay: 90ms;
+  }
+
+  .projectCard:nth-child(2) {
+    animation-delay: 70ms;
+  }
+
+  .projectCard:nth-child(3) {
+    animation-delay: 140ms;
+  }
+}
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 920px) {
   h1 {
     font-size: 56px;
@@ -463,6 +597,10 @@ a:focus-visible {
 
   .projectGrid {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .credentialList {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -512,6 +650,10 @@ a:focus-visible {
 
   .portrait img {
     width: min(100%, 360px);
+  }
+
+  .proof {
+    grid-template-columns: 1fr;
   }
 
   .projectGrid {
