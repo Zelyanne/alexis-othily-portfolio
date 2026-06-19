@@ -13,8 +13,7 @@ import portraitUrl from '../portrait-cutout.png'
 
 const cvUrl = new URL('../mqjoscgf-Alexis-OTHILY-CV.pdf', import.meta.url).href
 const email = 'othilyjose14@gmail.com'
-const configuredAnalyticsEndpoint = import.meta.env.VITE_ANALYTICS_ENDPOINT as string | undefined
-const analyticsEndpoint = configuredAnalyticsEndpoint || '/api/analytics'
+const analyticsEndpoint = '/api/analytics'
 const analyticsStorageKey = 'alexis-portfolio-clicks'
 const analyticsViewSessionKey = 'alexis-portfolio-viewed'
 
@@ -629,13 +628,22 @@ function CountPage() {
   useEffect(() => {
     setLocalEvents(readLocalAnalyticsEvents())
 
-    fetch(analyticsEndpoint)
-      .then((response) => {
-        if (!response.ok) throw new Error('analytics unavailable')
-        return response.json() as Promise<AnalyticsStats>
-      })
-      .then(setRemoteStats)
-      .catch(() => setRemoteError(text.count.apiError))
+    const refreshStats = () => {
+      fetch(analyticsEndpoint)
+        .then((response) => {
+          if (!response.ok) throw new Error('analytics unavailable')
+          return response.json() as Promise<AnalyticsStats>
+        })
+        .then((stats) => {
+          setRemoteStats(stats)
+          setRemoteError('')
+        })
+        .catch(() => setRemoteError(text.count.apiError))
+    }
+
+    refreshStats()
+    const timer = window.setInterval(refreshStats, 5000)
+    return () => window.clearInterval(timer)
   }, [text.count.apiError])
 
   const localStats = useMemo(() => getAnalyticsStats(localEvents), [localEvents])
