@@ -16,19 +16,23 @@ const email = 'othilyjose14@gmail.com'
 const configuredAnalyticsEndpoint = import.meta.env.VITE_ANALYTICS_ENDPOINT as string | undefined
 const analyticsEndpoint = configuredAnalyticsEndpoint || '/api/analytics'
 const analyticsStorageKey = 'alexis-portfolio-clicks'
+const analyticsViewSessionKey = 'alexis-portfolio-viewed'
 
 type AnalyticsEvent = {
-  href: string
+  href?: string
   id: string
   label: string
   locale: string
   path: string
   timeZone: string
   timestamp: string
+  type?: 'click' | 'view'
 }
 
 type AnalyticsStats = {
+  clicks: number
   total: number
+  views: number
   locations: Array<{ label: string; count: number }>
   recent: AnalyticsEvent[]
 }
@@ -152,13 +156,22 @@ function readLocalAnalyticsEvents() {
 
 function getAnalyticsStats(events: AnalyticsEvent[]): AnalyticsStats {
   const locationCounts = new Map<string, number>()
+  let clicks = 0
+  let views = 0
+
   for (const event of events) {
+    const type = event.type || 'click'
+    if (type === 'view') views += 1
+    if (type === 'click') clicks += 1
+
     const label = `${event.locale || 'locale inconnue'} / ${event.timeZone || 'zone inconnue'}`
     locationCounts.set(label, (locationCounts.get(label) || 0) + 1)
   }
 
   return {
+    clicks,
     total: events.length,
+    views,
     locations: [...locationCounts.entries()]
       .map(([label, count]) => ({ label, count }))
       .sort((a, b) => b.count - a.count),
@@ -166,7 +179,7 @@ function getAnalyticsStats(events: AnalyticsEvent[]): AnalyticsStats {
   }
 }
 
-function trackLandingClick(id: string, label: string, href: string) {
+function trackAnalyticsEvent(type: 'click' | 'view', id: string, label: string, href?: string) {
   const event: AnalyticsEvent = {
     href,
     id,
@@ -175,6 +188,7 @@ function trackLandingClick(id: string, label: string, href: string) {
     path: window.location.pathname,
     timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     timestamp: new Date().toISOString(),
+    type,
   }
 
   const events = readLocalAnalyticsEvents()
@@ -192,6 +206,16 @@ function trackLandingClick(id: string, label: string, href: string) {
     keepalive: true,
     method: 'POST',
   })
+}
+
+function trackLandingClick(id: string, label: string, href: string) {
+  trackAnalyticsEvent('click', id, label, href)
+}
+
+function trackLandingView() {
+  if (window.sessionStorage.getItem(analyticsViewSessionKey)) return
+  window.sessionStorage.setItem(analyticsViewSessionKey, '1')
+  trackAnalyticsEvent('view', 'landing-page', 'Vue landing page')
 }
 
 function Layout() {
@@ -219,6 +243,10 @@ function Layout() {
 }
 
 function HomePage() {
+  useEffect(() => {
+    trackLandingView()
+  }, [])
+
   return (
     <main className="page">
       <section className="hero">
@@ -395,8 +423,8 @@ function CountPage() {
         <p className="eyebrow">View count</p>
         <h1>Clicks landing page</h1>
         <p className="lead">
-          Route cachée pour consulter les clics sur les liens projets depuis la
-          landing page.
+          Route cachée pour consulter les vues de la landing page, les clics sur
+          les liens projets et les localisations disponibles.
         </p>
         <p className="analyticsNotice">
           Endpoint: {analyticsEndpoint}. Sans API backend à cette route, les
@@ -407,9 +435,14 @@ function CountPage() {
 
       <section className="analyticsGrid" aria-label="Statistiques de clics">
         <article>
-          <span>Total</span>
-          <strong>{stats.total}</strong>
-          <p>clics enregistrés</p>
+          <span>Vues</span>
+          <strong>{stats.views}</strong>
+          <p>sessions landing page</p>
+        </article>
+        <article>
+          <span>Clics</span>
+          <strong>{stats.clicks}</strong>
+          <p>liens projets</p>
         </article>
         <article>
           <span>Localisations</span>
@@ -435,12 +468,12 @@ function CountPage() {
       </section>
 
       <section className="section analyticsTable">
-        <h2>Derniers clics</h2>
+        <h2>Derniers événements</h2>
         {stats.recent.length ? (
           <ul>
             {stats.recent.map((event) => (
               <li key={`${event.timestamp}-${event.id}`}>
-                <span>{event.label}</span>
+                <span>{event.type === 'view' ? 'Vue' : 'Clic'} - {event.label}</span>
                 <strong>{new Date(event.timestamp).toLocaleString('fr-FR')}</strong>
               </li>
             ))}

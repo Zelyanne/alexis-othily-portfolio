@@ -1,9 +1,11 @@
 import { Redis } from '@upstash/redis'
 
 const memory = globalThis.__alexisAnalytics || {
+  clicks: 0,
   locations: new Map(),
   recent: [],
   total: 0,
+  views: 0,
 }
 
 globalThis.__alexisAnalytics = memory
@@ -11,9 +13,11 @@ globalThis.__alexisAnalytics = memory
 const hasRedis = Boolean(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN)
 const redis = hasRedis ? Redis.fromEnv() : null
 const keys = {
+  clicks: 'analytics:clicks',
   locations: 'analytics:locations',
   recent: 'analytics:recent',
   total: 'analytics:total',
+  views: 'analytics:views',
 }
 
 function json(res, status, body) {
@@ -65,14 +69,18 @@ function normalizeRecent(items) {
 
 async function getStats() {
   if (redis) {
-    const [total, locations, recent] = await Promise.all([
+    const [total, views, clicks, locations, recent] = await Promise.all([
       redis.get(keys.total),
+      redis.get(keys.views),
+      redis.get(keys.clicks),
       redis.hgetall(keys.locations),
       redis.lrange(keys.recent, 0, 11),
     ])
 
     return {
+      clicks: Number(clicks || 0),
       total: Number(total || 0),
+      views: Number(views || 0),
       locations: Object.entries(locations || {})
         .map(([label, count]) => ({ label, count: Number(count) }))
         .sort((a, b) => b.count - a.count),
@@ -81,7 +89,9 @@ async function getStats() {
   }
 
   return {
+    clicks: memory.clicks,
     total: memory.total,
+    views: memory.views,
     locations: [...memory.locations.entries()]
       .map(([label, count]) => ({ label, count }))
       .sort((a, b) => b.count - a.count),
@@ -93,6 +103,7 @@ async function saveEvent(event) {
   if (redis) {
     await Promise.all([
       redis.incr(keys.total),
+      redis.incr(event.type === 'view' ? keys.views : keys.clicks),
       redis.hincrby(keys.locations, event.location, 1),
       redis.lpush(keys.recent, JSON.stringify(event)),
     ])
@@ -101,6 +112,8 @@ async function saveEvent(event) {
   }
 
   memory.total += 1
+  if (event.type === 'view') memory.views += 1
+  if (event.type === 'click') memory.clicks += 1
   memory.locations.set(event.location, (memory.locations.get(event.location) || 0) + 1)
   memory.recent.unshift(event)
   memory.recent = memory.recent.slice(0, 50)
@@ -115,6 +128,7 @@ export default async function handler(req, res) {
     if (req.method !== 'POST') return json(res, 405, { error: 'Method not allowed' })
 
     const body = parseBody(req)
+    const type = body.type === 'view' ? 'view' : 'click'
     const location = getLocation(req, `${body.locale || ''} / ${body.timeZone || ''}`.trim())
     const event = {
       href: String(body.href || ''),
@@ -125,6 +139,7 @@ export default async function handler(req, res) {
       path: String(body.path || '/'),
       timeZone: String(body.timeZone || ''),
       timestamp: String(body.timestamp || new Date().toISOString()),
+      type,
     }
 
     await saveEvent(event)
