@@ -8,4 +8,11 @@ npm run dev
 npm run build
 ```
 
-Hidden analytics route: `/count`. Without `VITE_ANALYTICS_ENDPOINT`, it shows only clicks stored in the current browser.
+Hidden analytics route: `/count`. It calls `/api/analytics` by default.
+
+For Vercel persistence, add an Upstash Redis integration and set:
+
+```env
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
+```

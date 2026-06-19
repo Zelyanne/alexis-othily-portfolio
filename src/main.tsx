@@ -13,7 +13,8 @@ import portraitUrl from '../portrait-cutout.png'
 
 const cvUrl = new URL('../mqjoscgf-Alexis-OTHILY-CV.pdf', import.meta.url).href
 const email = 'othilyjose14@gmail.com'
-const analyticsEndpoint = import.meta.env.VITE_ANALYTICS_ENDPOINT as string | undefined
+const configuredAnalyticsEndpoint = import.meta.env.VITE_ANALYTICS_ENDPOINT as string | undefined
+const analyticsEndpoint = configuredAnalyticsEndpoint || '/api/analytics'
 const analyticsStorageKey = 'alexis-portfolio-clicks'
 
 type AnalyticsEvent = {
@@ -178,9 +179,6 @@ function trackLandingClick(id: string, label: string, href: string) {
 
   const events = readLocalAnalyticsEvents()
   window.localStorage.setItem(analyticsStorageKey, JSON.stringify([...events, event]))
-
-  // ponytail: static-site fallback. Add VITE_ANALYTICS_ENDPOINT for real multi-visitor storage.
-  if (!analyticsEndpoint) return
 
   const body = JSON.stringify(event)
   if (navigator.sendBeacon) {
@@ -379,8 +377,6 @@ function CountPage() {
   useEffect(() => {
     setLocalEvents(readLocalAnalyticsEvents())
 
-    if (!analyticsEndpoint) return
-
     fetch(analyticsEndpoint)
       .then((response) => {
         if (!response.ok) throw new Error('analytics unavailable')
@@ -402,13 +398,10 @@ function CountPage() {
           Route cachée pour consulter les clics sur les liens projets depuis la
           landing page.
         </p>
-        {!analyticsEndpoint && (
-          <p className="analyticsNotice">
-            Mode local: ces chiffres viennent seulement de ce navigateur. Pour
-            compter tous les visiteurs, configure une API avec
-            VITE_ANALYTICS_ENDPOINT.
-          </p>
-        )}
+        <p className="analyticsNotice">
+          Endpoint: {analyticsEndpoint}. Sans API backend à cette route, les
+          chiffres affichés viennent seulement de ce navigateur.
+        </p>
         {remoteError && <p className="analyticsNotice">{remoteError}</p>}
       </section>
 
