@@ -350,7 +350,6 @@ a:focus-visible {
   gap: 24px;
   padding: 22px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-top: 4px solid var(--accent);
   border-radius: 8px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 120px),
@@ -361,18 +360,6 @@ a:focus-visible {
 .projectCard:hover {
   transform: translateY(-2px);
   border-color: rgba(255, 255, 255, 0.2);
-}
-
-.projectCard.rose {
-  border-top-color: var(--rose);
-}
-
-.projectCard.amber {
-  border-top-color: var(--amber);
-}
-
-.projectCard.teal {
-  border-top-color: var(--teal);
 }
 
 .tag {
