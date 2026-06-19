@@ -1,4 +1,4 @@
-import { StrictMode } from 'react'
+import { StrictMode, useEffect, useMemo, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import {
   Link,
@@ -13,6 +13,24 @@ import portraitUrl from '../portrait-cutout.png'
 
 const cvUrl = new URL('../mqjoscgf-Alexis-OTHILY-CV.pdf', import.meta.url).href
 const email = 'othilyjose14@gmail.com'
+const analyticsEndpoint = import.meta.env.VITE_ANALYTICS_ENDPOINT as string | undefined
+const analyticsStorageKey = 'alexis-portfolio-clicks'
+
+type AnalyticsEvent = {
+  href: string
+  id: string
+  label: string
+  locale: string
+  path: string
+  timeZone: string
+  timestamp: string
+}
+
+type AnalyticsStats = {
+  total: number
+  locations: Array<{ label: string; count: number }>
+  recent: AnalyticsEvent[]
+}
 
 const projects = [
   {
@@ -122,6 +140,62 @@ const credentials = [
   ['Zindi', '47e / 245 - CGIAR Root Volume Estimation'],
 ] as const
 
+function readLocalAnalyticsEvents() {
+  try {
+    const raw = window.localStorage.getItem(analyticsStorageKey)
+    return raw ? (JSON.parse(raw) as AnalyticsEvent[]) : []
+  } catch {
+    return []
+  }
+}
+
+function getAnalyticsStats(events: AnalyticsEvent[]): AnalyticsStats {
+  const locationCounts = new Map<string, number>()
+  for (const event of events) {
+    const label = `${event.locale || 'locale inconnue'} / ${event.timeZone || 'zone inconnue'}`
+    locationCounts.set(label, (locationCounts.get(label) || 0) + 1)
+  }
+
+  return {
+    total: events.length,
+    locations: [...locationCounts.entries()]
+      .map(([label, count]) => ({ label, count }))
+      .sort((a, b) => b.count - a.count),
+    recent: [...events].reverse().slice(0, 12),
+  }
+}
+
+function trackLandingClick(id: string, label: string, href: string) {
+  const event: AnalyticsEvent = {
+    href,
+    id,
+    label,
+    locale: navigator.language,
+    path: window.location.pathname,
+    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    timestamp: new Date().toISOString(),
+  }
+
+  const events = readLocalAnalyticsEvents()
+  window.localStorage.setItem(analyticsStorageKey, JSON.stringify([...events, event]))
+
+  // ponytail: static-site fallback. Add VITE_ANALYTICS_ENDPOINT for real multi-visitor storage.
+  if (!analyticsEndpoint) return
+
+  const body = JSON.stringify(event)
+  if (navigator.sendBeacon) {
+    navigator.sendBeacon(analyticsEndpoint, new Blob([body], { type: 'application/json' }))
+    return
+  }
+
+  void fetch(analyticsEndpoint, {
+    body,
+    headers: { 'Content-Type': 'application/json' },
+    keepalive: true,
+    method: 'POST',
+  })
+}
+
 function Layout() {
   return (
     <>
@@ -151,7 +225,7 @@ function HomePage() {
     <main className="page">
       <section className="hero">
         <div className="heroCopy">
-          <p className="eyebrow">Développeur IA junior - Cotonou</p>
+          <p className="eyebrow">Développeur IA - Cotonou</p>
           <h1>Agents IA, vision et backend produit.</h1>
           <p className="lead">
             Je conçois des systèmes IA concrets: agents LangGraph, pipelines de
@@ -221,7 +295,12 @@ function HomePage() {
                   <span key={item}>{item}</span>
                 ))}
               </div>
-              <a href={project.href} target="_blank" rel="noreferrer">
+              <a
+                href={project.href}
+                onClick={() => trackLandingClick(project.slug, project.title, project.href)}
+                target="_blank"
+                rel="noreferrer"
+              >
                 Visiter le site <span aria-hidden="true">↗</span>
               </a>
             </article>
@@ -292,6 +371,95 @@ function HomePage() {
   )
 }
 
+function CountPage() {
+  const [remoteStats, setRemoteStats] = useState<AnalyticsStats | null>(null)
+  const [remoteError, setRemoteError] = useState('')
+  const [localEvents, setLocalEvents] = useState<AnalyticsEvent[]>([])
+
+  useEffect(() => {
+    setLocalEvents(readLocalAnalyticsEvents())
+
+    if (!analyticsEndpoint) return
+
+    fetch(analyticsEndpoint)
+      .then((response) => {
+        if (!response.ok) throw new Error('analytics unavailable')
+        return response.json() as Promise<AnalyticsStats>
+      })
+      .then(setRemoteStats)
+      .catch(() => setRemoteError('API analytics indisponible.'))
+  }, [])
+
+  const localStats = useMemo(() => getAnalyticsStats(localEvents), [localEvents])
+  const stats = remoteStats || localStats
+
+  return (
+    <main className="page countPage">
+      <section className="section">
+        <p className="eyebrow">View count</p>
+        <h1>Clicks landing page</h1>
+        <p className="lead">
+          Route cachée pour consulter les clics sur les liens projets depuis la
+          landing page.
+        </p>
+        {!analyticsEndpoint && (
+          <p className="analyticsNotice">
+            Mode local: ces chiffres viennent seulement de ce navigateur. Pour
+            compter tous les visiteurs, configure une API avec
+            VITE_ANALYTICS_ENDPOINT.
+          </p>
+        )}
+        {remoteError && <p className="analyticsNotice">{remoteError}</p>}
+      </section>
+
+      <section className="analyticsGrid" aria-label="Statistiques de clics">
+        <article>
+          <span>Total</span>
+          <strong>{stats.total}</strong>
+          <p>clics enregistrés</p>
+        </article>
+        <article>
+          <span>Localisations</span>
+          <strong>{stats.locations.length}</strong>
+          <p>locale / fuseau horaire</p>
+        </article>
+      </section>
+
+      <section className="section analyticsTable">
+        <h2>Localisation</h2>
+        {stats.locations.length ? (
+          <ul>
+            {stats.locations.map((location) => (
+              <li key={location.label}>
+                <span>{location.label}</span>
+                <strong>{location.count}</strong>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>Aucun clic enregistré.</p>
+        )}
+      </section>
+
+      <section className="section analyticsTable">
+        <h2>Derniers clics</h2>
+        {stats.recent.length ? (
+          <ul>
+            {stats.recent.map((event) => (
+              <li key={`${event.timestamp}-${event.id}`}>
+                <span>{event.label}</span>
+                <strong>{new Date(event.timestamp).toLocaleString('fr-FR')}</strong>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>Aucun clic enregistré.</p>
+        )}
+      </section>
+    </main>
+  )
+}
+
 function CvPage() {
   return (
     <main className="page cvPage">
@@ -332,7 +500,13 @@ const cvRoute = createRoute({
   component: CvPage,
 })
 
-const routeTree = rootRoute.addChildren([indexRoute, cvRoute])
+const countRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: 'count',
+  component: CountPage,
+})
+
+const routeTree = rootRoute.addChildren([indexRoute, cvRoute, countRoute])
 
 const router = createRouter({
   routeTree,
