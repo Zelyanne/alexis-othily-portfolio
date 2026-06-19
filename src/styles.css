@@ -235,10 +235,10 @@ a:focus-visible {
 
 .proof {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   margin-top: 44px;
-  max-width: 460px;
+  max-width: 760px;
 }
 
 .skillList span,
@@ -253,25 +253,43 @@ a:focus-visible {
 }
 
 .proofItem {
-  min-height: 94px;
+  min-height: 210px;
   display: grid;
-  align-content: center;
-  gap: 6px;
+  align-content: space-between;
+  gap: 14px;
   padding: 16px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.035);
 }
 
-.proofItem strong {
-  font-size: 28px;
-  line-height: 1;
+.proofItem h2 {
+  max-width: none;
+  font-size: 19px;
+  line-height: 1.15;
+}
+
+.proofItem p {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.proofItem div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
 }
 
 .proofItem span {
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.065);
   color: var(--muted);
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 800;
 }
 
 .portrait {
@@ -281,16 +299,6 @@ a:focus-visible {
   align-items: end;
   justify-items: center;
   margin: 0;
-}
-
-.portrait::before {
-  content: "Alexis";
-  position: absolute;
-  top: 95px;
-  color: rgba(255, 255, 255, 0.12);
-  font-size: 110px;
-  font-weight: 800;
-  line-height: 1;
 }
 
 .portrait img {
@@ -636,24 +644,32 @@ a:focus-visible {
 
   .hero {
     gap: 34px;
-    padding-top: 42px;
+    padding-top: 34px;
   }
 
   .portrait {
-    min-height: 440px;
-  }
-
-  .portrait::before {
-    top: 50px;
-    font-size: 64px;
+    min-height: 390px;
   }
 
   .portrait img {
-    width: min(100%, 360px);
+    width: min(100%, 330px);
   }
 
   .proof {
     grid-template-columns: 1fr;
+  }
+
+  .proofItem {
+    min-height: 172px;
+    padding: 14px;
+  }
+
+  .proofItem h2 {
+    font-size: 18px;
+  }
+
+  .proofItem span {
+    min-height: 26px;
   }
 
   .projectGrid {

@@ -53,9 +53,22 @@ const projects = [
   },
 ] as const
 
-const highlights = [
-  ['3', 'produits live'],
-  ['YOLOv7', 'vision appliquée'],
+const domains = [
+  {
+    title: 'AI Engineering',
+    text: 'Agents IA, workflows LangGraph, orchestration MCP et modèles appliqués.',
+    tools: ['Python', 'TypeScript', 'LangGraph', 'LangChain', 'Mistral', 'Hugging Face'],
+  },
+  {
+    title: 'Data Analysis',
+    text: 'Analyse métier, dashboards, modèles ML et restitution de tendances.',
+    tools: ['Python', 'SQL', 'Jupyter', 'Taipy', 'scikit-learn', 'PyTorch'],
+  },
+  {
+    title: 'Back end dev',
+    text: 'APIs, bases de données, auth, logique produit et déploiement applicatif.',
+    tools: ['Python', 'Flask', 'FastAPI', 'Django', 'PostgreSQL', 'Docker'],
+  },
 ] as const
 
 const skills = [
@@ -146,8 +159,8 @@ function HomePage() {
             utilisateurs réels.
           </p>
           <p className="heroNote">
-            Mon terrain: transformer une idée IA en workflow testable, API
-            utilisable et interface assez claire pour sortir du prototype.
+            Mon terrain: AI engineering, data analysis et back-end dev pour
+            transformer un besoin métier en système fiable.
           </p>
           <div className="actions">
             <a className="button primary" href="#projects">
@@ -160,12 +173,17 @@ function HomePage() {
               CV PDF
             </Link>
           </div>
-          <div className="proof" aria-label="Résumé rapide">
-            {highlights.map(([value, label]) => (
-              <div className="proofItem" key={label}>
-                <strong>{value}</strong>
-                <span>{label}</span>
-              </div>
+          <div className="proof" aria-label="Domaines techniques">
+            {domains.map((domain) => (
+              <article className="proofItem" key={domain.title}>
+                <h2>{domain.title}</h2>
+                <p>{domain.text}</p>
+                <div>
+                  {domain.tools.map((tool) => (
+                    <span key={tool}>{tool}</span>
+                  ))}
+                </div>
+              </article>
             ))}
           </div>
         </div>
