@@ -30,6 +30,8 @@ type AnalyticsEvent = {
 
 type AnalyticsStats = {
   clicks: number
+  persistent?: boolean
+  storage?: string
   total: number
   views: number
   locations: Array<{ label: string; count: number }>
@@ -102,9 +104,12 @@ const copy = {
         'Route cachée pour consulter les vues de la landing page, les clics sur les liens projets et les localisations disponibles.',
       noticePrefix: 'Endpoint',
       noticeSuffix:
-        'Sans API backend à cette route, les chiffres affichés viennent seulement de ce navigateur.',
+        'Si le stockage est temporaire, les chiffres peuvent se perdre quand Vercel redémarre la fonction.',
       apiError: 'API analytics indisponible.',
       statsLabel: 'Statistiques de clics',
+      storage: 'Stockage',
+      persistentStorage: 'Persistant - Upstash Redis',
+      temporaryStorage: 'Temporaire - ajoute Upstash Redis sur Vercel pour conserver les vues.',
       views: 'Vues',
       viewsHelp: 'sessions de landing page',
       clicks: 'Clics',
@@ -182,9 +187,12 @@ const copy = {
         'Hidden route for checking landing page views, project-link clicks and available locations.',
       noticePrefix: 'Endpoint',
       noticeSuffix:
-        'Without a backend API at this route, the displayed numbers come only from this browser.',
+        'If storage is temporary, numbers can disappear when Vercel restarts the function.',
       apiError: 'Analytics API unavailable.',
       statsLabel: 'Click statistics',
+      storage: 'Storage',
+      persistentStorage: 'Persistent - Upstash Redis',
+      temporaryStorage: 'Temporary - add Upstash Redis on Vercel to keep views.',
       views: 'Views',
       viewsHelp: 'landing page sessions',
       clicks: 'Clicks',
@@ -657,6 +665,9 @@ function CountPage() {
         <p className="lead">{text.count.lead}</p>
         <p className="analyticsNotice">
           {text.count.noticePrefix}: {analyticsEndpoint}. {text.count.noticeSuffix}
+        </p>
+        <p className="analyticsNotice">
+          {text.count.storage}: {stats.persistent ? text.count.persistentStorage : text.count.temporaryStorage}
         </p>
         {remoteError && <p className="analyticsNotice">{remoteError}</p>}
       </section>

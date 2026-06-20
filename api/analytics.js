@@ -12,6 +12,7 @@ globalThis.__alexisAnalytics = memory
 
 const hasRedis = Boolean(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN)
 const redis = hasRedis ? Redis.fromEnv() : null
+const storage = hasRedis ? 'upstash-redis' : 'memory'
 const keys = {
   clicks: 'analytics:clicks',
   locations: 'analytics:locations',
@@ -79,6 +80,8 @@ async function getStats() {
 
     return {
       clicks: Number(clicks || 0),
+      persistent: true,
+      storage,
       total: Number(total || 0),
       views: Number(views || 0),
       locations: Object.entries(locations || {})
@@ -90,6 +93,8 @@ async function getStats() {
 
   return {
     clicks: memory.clicks,
+    persistent: false,
+    storage,
     total: memory.total,
     views: memory.views,
     locations: [...memory.locations.entries()]
