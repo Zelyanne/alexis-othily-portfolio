@@ -10,7 +10,9 @@ const memory = globalThis.__alexisAnalytics || {
 
 globalThis.__alexisAnalytics = memory
 
-const hasRedis = Boolean(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN)
+const redisUrl = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL
+const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN
+const hasRedis = Boolean(redisUrl && redisToken)
 const redis = hasRedis ? Redis.fromEnv() : null
 const storage = hasRedis ? 'upstash-redis' : 'memory'
 const keys = {

@@ -18,3 +18,10 @@ integration and set:
 UPSTASH_REDIS_REST_URL=
 UPSTASH_REDIS_REST_TOKEN=
 ```
+
+Vercel's Upstash integration may also inject these names; the API supports them too:
+
+```env
+KV_REST_API_URL=
+KV_REST_API_TOKEN=
+```
