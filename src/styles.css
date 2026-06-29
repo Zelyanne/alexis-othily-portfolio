@@ -407,9 +407,9 @@ a:focus-visible {
 }
 
 .serviceMeta div {
-  grid-template-columns: max-content max-content;
-  justify-content: start;
-  column-gap: 18px;
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
 }
 
 .serviceMeta dt,
