@@ -144,6 +144,7 @@ export default async function handler(req, res) {
       locale: String(body.locale || ''),
       location,
       path: String(body.path || '/'),
+      referrer: String(body.referrer || ''),
       timeZone: String(body.timeZone || ''),
       timestamp: String(body.timestamp || new Date().toISOString()),
       type,

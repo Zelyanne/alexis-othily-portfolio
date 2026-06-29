@@ -22,7 +22,9 @@ type AnalyticsEvent = {
   id: string
   label: string
   locale: string
+  location?: string
   path: string
+  referrer?: string
   timeZone: string
   timestamp: string
   type?: 'click' | 'view'
@@ -118,6 +120,7 @@ const copy = {
       locationsHelp: 'locale / fuseau horaire',
       locationTitle: 'Localisation',
       recentTitle: 'Derniers événements',
+      directReferrer: 'Accès direct',
       empty: 'Aucun événement enregistré.',
       viewEvent: 'Vue',
       clickEvent: 'Clic',
@@ -201,6 +204,7 @@ const copy = {
       locationsHelp: 'locale / time zone',
       locationTitle: 'Location',
       recentTitle: 'Recent events',
+      directReferrer: 'Direct visit',
       empty: 'No event recorded.',
       viewEvent: 'View',
       clickEvent: 'Click',
@@ -383,7 +387,7 @@ function getAnalyticsStats(events: AnalyticsEvent[]): AnalyticsStats {
     if (type === 'view') views += 1
     if (type === 'click') clicks += 1
 
-    const label = `${event.locale || 'locale inconnue'} / ${event.timeZone || 'zone inconnue'}`
+    const label = event.location || `${event.locale || 'locale inconnue'} / ${event.timeZone || 'zone inconnue'}`
     locationCounts.set(label, (locationCounts.get(label) || 0) + 1)
   }
 
@@ -395,6 +399,15 @@ function getAnalyticsStats(events: AnalyticsEvent[]): AnalyticsStats {
       .map(([label, count]) => ({ label, count }))
       .sort((a, b) => b.count - a.count),
     recent: [...events].reverse().slice(0, 12),
+  }
+}
+
+function getReferrerLabel(referrer: string | undefined, fallback: string) {
+  if (!referrer) return fallback
+  try {
+    return new URL(referrer).hostname
+  } catch {
+    return referrer
   }
 }
 
@@ -421,7 +434,9 @@ function trackAnalyticsEvent(type: 'click' | 'view', id: string, label: string, 
     id,
     label,
     locale: navigator.language,
+    location: `${navigator.language} / ${Intl.DateTimeFormat().resolvedOptions().timeZone}`,
     path: window.location.pathname,
+    referrer: document.referrer,
     timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     timestamp: new Date().toISOString(),
     type,
@@ -712,7 +727,11 @@ function CountPage() {
           <ul>
             {stats.recent.map((event) => (
               <li key={`${event.timestamp}-${event.id}`}>
-                <span>{event.type === 'view' ? text.count.viewEvent : text.count.clickEvent} - {event.label}</span>
+                <span>
+                  {event.type === 'view' ? text.count.viewEvent : text.count.clickEvent} - {event.label} -{' '}
+                  {event.location || `${event.locale || 'locale inconnue'} / ${event.timeZone || 'zone inconnue'}`} -{' '}
+                  {getReferrerLabel(event.referrer, text.count.directReferrer)}
+                </span>
                 <strong>{new Date(event.timestamp).toLocaleString(language === 'fr' ? 'fr-FR' : 'en-US')}</strong>
               </li>
             ))}
