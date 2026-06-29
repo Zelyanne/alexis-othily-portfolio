@@ -15,6 +15,7 @@ const cvUrl = new URL('../mqjoscgf-Alexis-OTHILY-CV.pdf', import.meta.url).href
 const email = 'othilyjose14@gmail.com'
 const analyticsEndpoint = '/api/analytics'
 const analyticsStorageKey = 'alexis-portfolio-clicks'
+const analyticsViewSessionKey = 'alexis-portfolio-viewed'
 
 type AnalyticsEvent = {
   href?: string
@@ -128,7 +129,7 @@ const copy = {
       persistentStorage: 'Persistant - Upstash Redis',
       temporaryStorage: 'Temporaire - ajoute Upstash Redis sur Vercel pour conserver les vues.',
       views: 'Vues',
-      viewsHelp: 'chargements de landing page',
+      viewsHelp: 'sessions de landing page',
       clicks: 'Clics',
       clicksHelp: 'liens projets',
       locations: 'Localisations',
@@ -223,7 +224,7 @@ const copy = {
       persistentStorage: 'Persistent - Upstash Redis',
       temporaryStorage: 'Temporary - add Upstash Redis on Vercel to keep views.',
       views: 'Views',
-      viewsHelp: 'landing page loads',
+      viewsHelp: 'landing page sessions',
       clicks: 'Clicks',
       clicksHelp: 'project links',
       locations: 'Locations',
@@ -649,6 +650,8 @@ function trackLandingClick(id: string, label: string, href: string) {
 }
 
 function trackLandingView(label: string) {
+  if (window.sessionStorage.getItem(analyticsViewSessionKey)) return
+  window.sessionStorage.setItem(analyticsViewSessionKey, '1')
   trackAnalyticsEvent('view', 'landing-page', label)
 }
 
