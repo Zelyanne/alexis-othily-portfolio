@@ -407,7 +407,9 @@ a:focus-visible {
 }
 
 .serviceMeta div {
-  grid-template-columns: minmax(112px, 0.7fr) minmax(0, 1fr);
+  grid-template-columns: max-content max-content;
+  justify-content: start;
+  column-gap: 18px;
 }
 
 .serviceMeta dt,
@@ -424,6 +426,10 @@ a:focus-visible {
   color: var(--fg);
   font-size: 13px;
   font-weight: 800;
+}
+
+.serviceMeta dd {
+  white-space: nowrap;
 }
 
 .serviceCard > a,
