@@ -78,10 +78,7 @@ const copy = {
     servicesSection: {
       eyebrow: 'Offres freelance',
       h2: 'Choisissez le type d’agent dont votre activité a besoin.',
-      priceLabels: {
-        westAfrica: 'Tarif Afrique de l’Ouest',
-        world: 'Tarif reste du monde',
-      },
+      price: 'Tarif',
       timeline: 'Délais',
       cta: 'Parler de ce projet',
     },
@@ -176,10 +173,7 @@ const copy = {
     servicesSection: {
       eyebrow: 'Freelance offers',
       h2: 'Choose the kind of agent your activity needs.',
-      priceLabels: {
-        westAfrica: 'West Africa price',
-        world: 'Rest of world price',
-      },
+      price: 'Price',
       timeline: 'Timeline',
       cta: 'Talk about this project',
     },
@@ -768,7 +762,7 @@ function HomePage() {
               </div>
               <dl className="serviceMeta">
                 <div>
-                  <dt>{text.servicesSection.priceLabels[visitorRegion]}</dt>
+                  <dt>{text.servicesSection.price}</dt>
                   <dd>{service[visitorRegion][language]}</dd>
                 </div>
                 <div>
