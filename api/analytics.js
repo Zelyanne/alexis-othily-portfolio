@@ -64,11 +64,12 @@ function getGeo(req, fallback) {
   const region = getHeader(req, 'x-vercel-ip-country-region')
   const city = safeDecode(getHeader(req, 'x-vercel-ip-city') || '')
   const precise = [city, region, country].filter(Boolean).join(', ')
+  const pricingRegion = country ? (westAfricaCountries.has(country) ? 'westAfrica' : 'world') : undefined
   return {
     city,
     country,
     label: precise || fallback || 'Localisation inconnue',
-    pricingRegion: westAfricaCountries.has(country) ? 'westAfrica' : 'world',
+    pricingRegion,
     region,
   }
 }

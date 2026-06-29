@@ -49,9 +49,9 @@ type GeoResponse = {
 
 const copy = {
   fr: {
-    title: 'Alexis Othily - Freelance IA pour agents, chatbots et automatisation',
+    title: 'Alexis Othily - Freelance IA, agents IA, chatbots et automatisation',
     description:
-      'Freelance IA à Cotonou: chatbots avec base de connaissance, agents vocaux, workflows complexes, computer vision, signal processing et backends Python.',
+      'Alexis Othily, développeur freelance IA à Cotonou: agents IA, chatbots IA, agents vocaux, automatisation IA, computer vision, signal processing et backends Python.',
     nav: {
       label: 'Navigation principale',
       services: 'Offres',
@@ -63,9 +63,9 @@ const copy = {
     footer: 'Disponible freelance - Cotonou',
     home: {
       eyebrow: 'Freelance IA - Cotonou / Afrique de l’Ouest',
-      h1: 'Des agents IA utiles, livrés comme de vrais produits.',
+      h1: 'Alexis Othily, freelance IA pour agents, chatbots et automatisation.',
       lead:
-        'Je crée des chatbots, agents vocaux, workflows IA et outils vision/signal qui automatisent les échanges client, les tâches internes et les décisions métier.',
+        'Je crée des agents IA, chatbots IA, agents vocaux, workflows d’automatisation IA et outils vision/signal qui automatisent les échanges client, les tâches internes et les décisions métier.',
       note:
         'Vous arrivez avec un problème clair; je le transforme en application, API ou agent exploitable par votre équipe.',
       projectsButton: 'Voir les offres',
@@ -144,9 +144,9 @@ const copy = {
     },
   },
   en: {
-    title: 'Alexis Othily - Freelance AI developer for agents, chatbots and automation',
+    title: 'Alexis Othily - Freelance AI agent developer, chatbots and automation',
     description:
-      'Freelance AI developer in Cotonou building knowledge chatbots, voice agents, complex workflows, computer vision, signal processing and Python backends.',
+      'Alexis Othily is a freelance AI agent developer in Cotonou building AI agents, AI chatbots, voice agents, AI automation workflows, computer vision, signal processing and Python backends.',
     nav: {
       label: 'Main navigation',
       services: 'Offers',
@@ -158,9 +158,9 @@ const copy = {
     footer: 'Available for freelance - Cotonou',
     home: {
       eyebrow: 'Freelance AI developer - Cotonou / West Africa',
-      h1: 'Useful AI agents shipped as real products.',
+      h1: 'Alexis Othily, freelance AI developer for agents, chatbots and automation.',
       lead:
-        'I build chatbots, voice agents, AI workflows and vision/signal tools that automate customer conversations, internal tasks and business decisions.',
+        'I build AI agents, AI chatbots, voice agents, AI automation workflows and vision/signal tools that automate customer conversations, internal tasks and business decisions.',
       note:
         'Bring a clear business problem; I turn it into an app, API or agent your team can actually use.',
       projectsButton: 'See offers',
