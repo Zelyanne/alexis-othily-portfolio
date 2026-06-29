@@ -336,12 +336,21 @@ a:focus-visible {
   margin-bottom: 28px;
 }
 
+.serviceGrid,
 .projectGrid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
 }
 
+.serviceGrid {
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.projectGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.serviceCard,
 .projectCard {
   min-height: 410px;
   display: flex;
@@ -357,6 +366,11 @@ a:focus-visible {
   transition: border-color 180ms ease, transform 180ms ease, background 180ms ease;
 }
 
+.serviceCard {
+  min-height: 430px;
+}
+
+.serviceCard:hover,
 .projectCard:hover {
   transform: translateY(-2px);
   border-color: rgba(255, 255, 255, 0.2);
@@ -369,12 +383,14 @@ a:focus-visible {
   color: var(--muted);
 }
 
+.serviceCard p:not(.tag),
 .projectCard p:not(.tag) {
   margin-top: 14px;
   color: var(--muted);
   font-size: 15px;
 }
 
+.serviceMeta,
 .projectMeta {
   display: grid;
   gap: 10px;
@@ -383,12 +399,18 @@ a:focus-visible {
   border-block: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.serviceMeta div,
 .projectMeta div {
   display: grid;
   grid-template-columns: 64px minmax(0, 1fr);
   gap: 12px;
 }
 
+.serviceMeta div {
+  grid-template-columns: minmax(112px, 0.7fr) minmax(0, 1fr);
+}
+
+.serviceMeta dt,
 .projectMeta dt {
   color: var(--muted);
   font-size: 11px;
@@ -396,6 +418,7 @@ a:focus-visible {
   text-transform: uppercase;
 }
 
+.serviceMeta dd,
 .projectMeta dd {
   margin: 0;
   color: var(--fg);
@@ -403,6 +426,7 @@ a:focus-visible {
   font-weight: 800;
 }
 
+.serviceCard > a,
 .projectCard > a {
   min-height: 44px;
   align-self: flex-start;

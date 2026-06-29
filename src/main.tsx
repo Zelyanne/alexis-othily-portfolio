@@ -41,34 +41,52 @@ type AnalyticsStats = {
 }
 
 type Language = 'fr' | 'en'
+type VisitorRegion = 'westAfrica' | 'world'
+
+type GeoResponse = {
+  pricingRegion?: VisitorRegion
+}
 
 const copy = {
   fr: {
-    title: 'Alexis Othily - Développeur IA',
+    title: 'Alexis Othily - Freelance IA pour agents, chatbots et automatisation',
+    description:
+      'Freelance IA à Cotonou: chatbots avec base de connaissance, agents vocaux, workflows complexes, computer vision, signal processing et backends Python.',
     nav: {
       label: 'Navigation principale',
+      services: 'Offres',
       projects: 'Projets',
-      skills: 'Compétences',
+      skills: 'Stack',
       experience: 'Expérience',
       cv: 'CV',
     },
     footer: 'Disponible freelance - Cotonou',
     home: {
-      eyebrow: 'Développeur IA - Cotonou',
-      h1: 'Agents IA, vision et backend produit.',
+      eyebrow: 'Freelance IA - Cotonou / Afrique de l’Ouest',
+      h1: 'Des agents IA utiles, livrés comme de vrais produits.',
       lead:
-        'Je conçois des systèmes IA concrets: agents LangGraph, pipelines de données, computer vision et backends Python prêts pour des utilisateurs réels.',
+        'Je crée des chatbots, agents vocaux, workflows IA et outils vision/signal qui automatisent les échanges client, les tâches internes et les décisions métier.',
       note:
-        'Mon terrain: AI engineering, data analysis et back-end dev pour transformer un besoin métier en système fiable.',
-      projectsButton: 'Voir les projets',
-      contactButton: 'Me contacter',
+        'Vous arrivez avec un problème clair; je le transforme en application, API ou agent exploitable par votre équipe.',
+      projectsButton: 'Voir les offres',
+      contactButton: 'Demander un devis',
       cvButton: 'CV PDF',
       domainsLabel: 'Domaines techniques',
       portraitAlt: "Portrait professionnel d'Alexis Othily",
       status: 'Disponible freelance',
     },
+    servicesSection: {
+      eyebrow: 'Offres freelance',
+      h2: 'Choisissez le type d’agent dont votre activité a besoin.',
+      priceLabels: {
+        westAfrica: 'Tarif Afrique de l’Ouest',
+        world: 'Tarif reste du monde',
+      },
+      timeline: 'Délais',
+      cta: 'Parler de ce projet',
+    },
     projectsSection: {
-      eyebrow: 'Sélection de travaux',
+      eyebrow: 'Preuves de travail',
       h2: 'Des projets IA qui relient modèle, produit et usage.',
       role: 'Rôle',
       impact: 'Impact',
@@ -86,9 +104,10 @@ const copy = {
       h2: 'Des expériences proches du terrain.',
     },
     contact: {
-      eyebrow: 'Recruteurs & clients',
-      h2: "Parlons d'un agent IA, d'une API ou d'un pipeline vision.",
+      eyebrow: 'Contact',
+      h2: "Envoyez le problème à résoudre; je reviens avec une proposition simple.",
       email: 'Envoyer un email',
+      response: 'Décrivez le besoin, les outils existants et la zone: Afrique de l’Ouest ou reste du monde.',
     },
     cvPage: {
       eyebrow: 'CV',
@@ -128,31 +147,44 @@ const copy = {
     },
   },
   en: {
-    title: 'Alexis Othily - AI Developer',
+    title: 'Alexis Othily - Freelance AI developer for agents, chatbots and automation',
+    description:
+      'Freelance AI developer in Cotonou building knowledge chatbots, voice agents, complex workflows, computer vision, signal processing and Python backends.',
     nav: {
       label: 'Main navigation',
+      services: 'Offers',
       projects: 'Projects',
-      skills: 'Skills',
+      skills: 'Stack',
       experience: 'Experience',
       cv: 'Resume',
     },
     footer: 'Available for freelance - Cotonou',
     home: {
-      eyebrow: 'AI Developer - Cotonou',
-      h1: 'AI agents, vision and product backend.',
+      eyebrow: 'Freelance AI developer - Cotonou / West Africa',
+      h1: 'Useful AI agents shipped as real products.',
       lead:
-        'I build practical AI systems: LangGraph agents, data pipelines, computer vision and Python backends ready for real users.',
+        'I build chatbots, voice agents, AI workflows and vision/signal tools that automate customer conversations, internal tasks and business decisions.',
       note:
-        'My field: AI engineering, data analysis and back-end dev to turn business needs into reliable systems.',
-      projectsButton: 'See projects',
-      contactButton: 'Contact me',
+        'Bring a clear business problem; I turn it into an app, API or agent your team can actually use.',
+      projectsButton: 'See offers',
+      contactButton: 'Request a quote',
       cvButton: 'Resume PDF',
       domainsLabel: 'Technical domains',
       portraitAlt: 'Professional portrait of Alexis Othily',
       status: 'Available for freelance',
     },
+    servicesSection: {
+      eyebrow: 'Freelance offers',
+      h2: 'Choose the kind of agent your activity needs.',
+      priceLabels: {
+        westAfrica: 'West Africa price',
+        world: 'Rest of world price',
+      },
+      timeline: 'Timeline',
+      cta: 'Talk about this project',
+    },
     projectsSection: {
-      eyebrow: 'Selected work',
+      eyebrow: 'Work proof',
       h2: 'AI projects connecting model, product and real usage.',
       role: 'Role',
       impact: 'Impact',
@@ -170,9 +202,10 @@ const copy = {
       h2: 'Hands-on experience close to real needs.',
     },
     contact: {
-      eyebrow: 'Recruiters & clients',
-      h2: "Let's talk about an AI agent, an API or a vision pipeline.",
+      eyebrow: 'Contact',
+      h2: 'Send the problem to solve; I will reply with a simple proposal.',
       email: 'Send email',
+      response: 'Describe the need, current tools and region: West Africa or rest of world.',
     },
     cvPage: {
       eyebrow: 'Resume',
@@ -368,6 +401,150 @@ const credentials = [
   ['Zindi', '47e / 245 - CGIAR Root Volume Estimation'],
 ] as const
 
+const services = [
+  {
+    id: 'chatbot-app',
+    westAfrica: { fr: '200K FCFA', en: '200K FCFA' },
+    world: { fr: '600 EUR', en: '600 EUR' },
+    timeline: { fr: '2 semaines - 1 mois', en: '2 weeks - 1 month' },
+    fr: {
+      label: 'Chatbot app / site',
+      title: 'Application ou site avec chatbot intelligent',
+      summary:
+        'Interface chatbot connectée à une connaissance personnalisée: FAQ, documents, offres, process internes ou support client simple.',
+    },
+    en: {
+      label: 'Chatbot app / website',
+      title: 'App or website with an intelligent chatbot',
+      summary:
+        'Chatbot interface connected to personalized knowledge: FAQs, documents, offers, internal processes or simple customer support.',
+    },
+  },
+  {
+    id: 'voice-agent',
+    westAfrica: { fr: 'à partir de 650K FCFA', en: 'from 650K FCFA' },
+    world: { fr: 'à partir de 2000 EUR', en: 'from 2000 EUR' },
+    timeline: { fr: '1 - 4 mois', en: '1 - 4 months' },
+    fr: {
+      label: 'Agent vocal IA',
+      title: 'Agent d’appel pour vente ou service client',
+      summary:
+        'Agent vocal pour qualifier des prospects, répondre aux questions, guider un client et transmettre les conversations utiles à votre équipe.',
+    },
+    en: {
+      label: 'AI voice agent',
+      title: 'Calling agent for sales or customer service',
+      summary:
+        'Voice agent to qualify leads, answer questions, guide customers and pass useful conversations back to your team.',
+    },
+  },
+  {
+    id: 'workflow-agent',
+    westAfrica: { fr: 'à partir de 450K FCFA', en: 'from 450K FCFA' },
+    world: { fr: 'à partir de 1300 EUR', en: 'from 1300 EUR' },
+    timeline: { fr: '1 - 3 mois', en: '1 - 3 months' },
+    fr: {
+      label: 'Workflow complexe',
+      title: 'Agent qui gère des workflows multi-étapes',
+      summary:
+        'Orchestration LangGraph/MCP pour connecter outils, données, API, validations humaines et actions planifiées.',
+    },
+    en: {
+      label: 'Complex workflow',
+      title: 'Agent handling multi-step workflows',
+      summary:
+        'LangGraph/MCP orchestration to connect tools, data, APIs, human validation and scheduled actions.',
+    },
+  },
+  {
+    id: 'coding-agent',
+    westAfrica: { fr: 'à partir de 300K FCFA', en: 'from 300K FCFA' },
+    world: { fr: 'à partir de 1000 EUR', en: 'from 1000 EUR' },
+    timeline: { fr: '1 - 3 mois', en: '1 - 3 months' },
+    fr: {
+      label: 'Agent de travail spécialisé',
+      title: 'Agent branché à Codex, Claude Code, Hermes ou OpenClaw',
+      summary:
+        'Agent personnalisé pour une tâche métier précise: analyse de repo, génération assistée, contrôle qualité ou automatisation répétitive.',
+    },
+    en: {
+      label: 'Specialized work agent',
+      title: 'Agent plugged into Codex, Claude Code, Hermes or OpenClaw',
+      summary:
+        'Personalized agent for a precise work task: repo analysis, assisted generation, quality control or repetitive automation.',
+    },
+  },
+  {
+    id: 'vision-signal',
+    westAfrica: { fr: 'à partir de 400K FCFA', en: 'from 400K FCFA' },
+    world: { fr: 'à partir de 1200 EUR', en: 'from 1200 EUR' },
+    timeline: { fr: '1 - 3 mois', en: '1 - 3 months' },
+    fr: {
+      label: 'Vision & signal',
+      title: 'Computer vision ou traitement du signal',
+      summary:
+        'Détection, classification, analyse d’images, signaux audio ou mesures terrain avec pipeline Python exploitable.',
+    },
+    en: {
+      label: 'Vision & signal',
+      title: 'Computer vision or signal processing',
+      summary:
+        'Detection, classification, image analysis, audio signals or field measurements with a usable Python pipeline.',
+    },
+  },
+] as const
+
+const contactHref = `mailto:${email}?subject=${encodeURIComponent('Projet IA freelance')}`
+const westAfricaCountries = new Set([
+  'BJ',
+  'BF',
+  'CV',
+  'CI',
+  'GM',
+  'GH',
+  'GN',
+  'GW',
+  'LR',
+  'ML',
+  'MR',
+  'NE',
+  'NG',
+  'SN',
+  'SL',
+  'TG',
+])
+const westAfricaTimeZones = new Set([
+  'Africa/Abidjan',
+  'Africa/Accra',
+  'Africa/Bamako',
+  'Africa/Banjul',
+  'Africa/Bissau',
+  'Africa/Conakry',
+  'Africa/Dakar',
+  'Africa/Freetown',
+  'Africa/Lagos',
+  'Africa/Lome',
+  'Africa/Monrovia',
+  'Africa/Niamey',
+  'Africa/Nouakchott',
+  'Africa/Ouagadougou',
+  'Africa/Porto-Novo',
+  'Atlantic/Cape_Verde',
+])
+
+function getVisitorRegion(): VisitorRegion {
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+  if (westAfricaTimeZones.has(timeZone)) return 'westAfrica'
+
+  const languages = navigator.languages?.length ? navigator.languages : [navigator.language]
+  return languages.some((language) => {
+    const country = language.match(/[-_]([A-Z]{2})\b/i)?.[1]?.toUpperCase()
+    return country ? westAfricaCountries.has(country) : false
+  })
+    ? 'westAfrica'
+    : 'world'
+}
+
 function readLocalAnalyticsEvents() {
   try {
     const raw = window.localStorage.getItem(analyticsStorageKey)
@@ -416,6 +593,16 @@ function getDeviceLanguage(): Language {
   return navigator.language.toLowerCase().startsWith('fr') ? 'fr' : 'en'
 }
 
+function setMeta(name: string, content: string, attribute: 'name' | 'property' = 'name') {
+  let tag = document.head.querySelector<HTMLMetaElement>(`meta[${attribute}="${name}"]`)
+  if (!tag) {
+    tag = document.createElement('meta')
+    tag.setAttribute(attribute, name)
+    document.head.append(tag)
+  }
+  tag.content = content
+}
+
 function useCopy() {
   const [language] = useState<Language>(getDeviceLanguage)
   const text = copy[language]
@@ -423,7 +610,12 @@ function useCopy() {
   useEffect(() => {
     document.documentElement.lang = language
     document.title = text.title
-  }, [language, text.title])
+    setMeta('description', text.description)
+    setMeta('og:title', text.title, 'property')
+    setMeta('og:description', text.description, 'property')
+    setMeta('twitter:title', text.title)
+    setMeta('twitter:description', text.description)
+  }, [language, text.description, text.title])
 
   return { language, text }
 }
@@ -480,6 +672,7 @@ function Layout() {
           Alexis Othily
         </Link>
         <nav aria-label={text.nav.label}>
+          <a href="/#services">{text.nav.services}</a>
           <a href="/#projects">{text.nav.projects}</a>
           <a href="/#skills">{text.nav.skills}</a>
           <a href="/#experience">{text.nav.experience}</a>
@@ -497,10 +690,27 @@ function Layout() {
 
 function HomePage() {
   const { language, text } = useCopy()
+  const [visitorRegion, setVisitorRegion] = useState<VisitorRegion>(getVisitorRegion)
 
   useEffect(() => {
     trackLandingView(text.count.viewLabel)
   }, [text.count.viewLabel])
+
+  useEffect(() => {
+    fetch(`${analyticsEndpoint}?geo=1`)
+      .then((response) => {
+        if (!response.ok) throw new Error('geo unavailable')
+        return response.json() as Promise<GeoResponse>
+      })
+      .then((geo) => {
+        if (geo.pricingRegion === 'westAfrica' || geo.pricingRegion === 'world') {
+          setVisitorRegion(geo.pricingRegion)
+        }
+      })
+      .catch(() => {
+        setVisitorRegion(getVisitorRegion())
+      })
+  }, [])
 
   return (
     <main className="page">
@@ -511,10 +721,10 @@ function HomePage() {
           <p className="lead">{text.home.lead}</p>
           <p className="heroNote">{text.home.note}</p>
           <div className="actions">
-            <a className="button primary" href="#projects">
+            <a className="button primary" href="#services">
               {text.home.projectsButton}
             </a>
-            <a className="button" href={`mailto:${email}`}>
+            <a className="button" href={contactHref}>
               {text.home.contactButton}
             </a>
             <Link className="button" to="/cv">
@@ -539,6 +749,39 @@ function HomePage() {
           <img src={portraitUrl} alt={text.home.portraitAlt} />
           <figcaption>{text.home.status}</figcaption>
         </figure>
+      </section>
+
+      <section id="services" className="section">
+        <div className="sectionHead">
+          <div>
+            <p className="eyebrow">{text.servicesSection.eyebrow}</p>
+            <h2>{text.servicesSection.h2}</h2>
+          </div>
+        </div>
+        <div className="serviceGrid">
+          {services.map((service) => (
+            <article className="serviceCard" key={service.id}>
+              <div>
+                <p className="tag">{service[language].label}</p>
+                <h3>{service[language].title}</h3>
+                <p>{service[language].summary}</p>
+              </div>
+              <dl className="serviceMeta">
+                <div>
+                  <dt>{text.servicesSection.priceLabels[visitorRegion]}</dt>
+                  <dd>{service[visitorRegion][language]}</dd>
+                </div>
+                <div>
+                  <dt>{text.servicesSection.timeline}</dt>
+                  <dd>{service.timeline[language]}</dd>
+                </div>
+              </dl>
+              <a className="button primary" href={contactHref}>
+                {text.servicesSection.cta}
+              </a>
+            </article>
+          ))}
+        </div>
       </section>
 
       <section id="projects" className="section">
@@ -625,9 +868,10 @@ function HomePage() {
         <div>
           <p className="eyebrow">{text.contact.eyebrow}</p>
           <h2>{text.contact.h2}</h2>
+          <p className="sectionText">{text.contact.response}</p>
         </div>
         <div className="contactLinks">
-          <a className="button primary" href={`mailto:${email}`}>
+          <a className="button primary" href={contactHref}>
             {text.contact.email}
           </a>
           <a className="button" href="tel:+2290191112696">

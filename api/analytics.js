@@ -22,6 +22,24 @@ const keys = {
   total: 'analytics:total',
   views: 'analytics:views',
 }
+const westAfricaCountries = new Set([
+  'BJ',
+  'BF',
+  'CV',
+  'CI',
+  'GM',
+  'GH',
+  'GN',
+  'GW',
+  'LR',
+  'ML',
+  'MR',
+  'NE',
+  'NG',
+  'SN',
+  'SL',
+  'TG',
+])
 
 function json(res, status, body) {
   res.setHeader('Content-Type', 'application/json')
@@ -41,12 +59,22 @@ function safeDecode(value) {
   }
 }
 
-function getLocation(req, fallback) {
+function getGeo(req, fallback) {
   const country = getHeader(req, 'x-vercel-ip-country')
   const region = getHeader(req, 'x-vercel-ip-country-region')
   const city = safeDecode(getHeader(req, 'x-vercel-ip-city') || '')
   const precise = [city, region, country].filter(Boolean).join(', ')
-  return precise || fallback || 'Localisation inconnue'
+  return {
+    city,
+    country,
+    label: precise || fallback || 'Localisation inconnue',
+    pricingRegion: westAfricaCountries.has(country) ? 'westAfrica' : 'world',
+    region,
+  }
+}
+
+function getLocation(req, fallback) {
+  return getGeo(req, fallback).label
 }
 
 function parseBody(req) {
@@ -130,7 +158,10 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(204).end()
 
   try {
-    if (req.method === 'GET') return json(res, 200, await getStats())
+    if (req.method === 'GET') {
+      if (req.query?.geo) return json(res, 200, getGeo(req))
+      return json(res, 200, await getStats())
+    }
 
     if (req.method !== 'POST') return json(res, 405, { error: 'Method not allowed' })
 
