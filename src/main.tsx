@@ -9,7 +9,7 @@ import {
   createRouter,
 } from '@tanstack/react-router'
 import './styles.css'
-import portraitUrl from '../portrait-cutout.png'
+import portraitUrl from '../portrait-cutout.webp'
 
 const cvUrl = new URL('../mqjoscgf-Alexis-OTHILY-CV.pdf', import.meta.url).href
 const email = 'othilyjose14@gmail.com'
@@ -54,21 +54,24 @@ const copy = {
       'Alexis Othily, développeur freelance IA à Cotonou: agents IA, chatbots IA, agents vocaux, automatisation IA, computer vision, signal processing et backends Python.',
     nav: {
       label: 'Navigation principale',
+      skip: 'Aller au contenu',
+      menu: 'Menu',
       services: 'Offres',
       projects: 'Projets',
       skills: 'Stack',
       experience: 'Expérience',
+      contact: 'Contact',
       cv: 'CV',
     },
     footer: 'Disponible freelance - Cotonou',
     home: {
       eyebrow: 'Freelance IA - Cotonou / Afrique de l’Ouest',
-      h1: 'Alexis Othily, freelance IA pour agents, chatbots et automatisation.',
+      h1: 'Alexis Othily — agents IA, chatbots et automatisation.',
       lead:
         'Je crée des agents IA, chatbots IA, agents vocaux, workflows d’automatisation IA et outils vision/signal qui automatisent les échanges client, les tâches internes et les décisions métier.',
       note:
         'Vous arrivez avec un problème clair; je le transforme en application, API ou agent exploitable par votre équipe.',
-      projectsButton: 'Voir les offres',
+      projectsButton: 'Voir mes projets',
       contactButton: 'Demander un devis',
       cvButton: 'CV PDF',
       domainsLabel: 'Domaines techniques',
@@ -149,21 +152,24 @@ const copy = {
       'Alexis Othily is a freelance AI agent developer in Cotonou building AI agents, AI chatbots, voice agents, AI automation workflows, computer vision, signal processing and Python backends.',
     nav: {
       label: 'Main navigation',
+      skip: 'Skip to content',
+      menu: 'Menu',
       services: 'Offers',
       projects: 'Projects',
       skills: 'Stack',
       experience: 'Experience',
+      contact: 'Contact',
       cv: 'Resume',
     },
     footer: 'Available for freelance - Cotonou',
     home: {
       eyebrow: 'Freelance AI developer - Cotonou / West Africa',
-      h1: 'Alexis Othily, freelance AI developer for agents, chatbots and automation.',
+      h1: 'Alexis Othily — AI agents, chatbots and automation.',
       lead:
         'I build AI agents, AI chatbots, voice agents, AI automation workflows and vision/signal tools that automate customer conversations, internal tasks and business decisions.',
       note:
         'Bring a clear business problem; I turn it into an app, API or agent your team can actually use.',
-      projectsButton: 'See offers',
+      projectsButton: 'See my work',
       contactButton: 'Request a quote',
       cvButton: 'Resume PDF',
       domainsLabel: 'Technical domains',
@@ -357,19 +363,19 @@ const skills = [
 
 const experiences = [
   {
-    frDate: 'Déc. 2025 - Avr. 2026',
-    enDate: 'Dec. 2025 - Apr. 2026',
-    title: 'EdTech Program Manager - Neural Bridge',
-    fr: "Conception de contenus pédagogiques pour l'apprentissage du code et solutions IA adaptées aux apprenants adultes.",
-    en: 'Designed educational content for learning code and adapted AI solutions for adult learners.',
-  },
-  {
     frDate: 'Mai 2026',
     enDate: 'May 2026',
     frTitle: 'Freelance - Backend e-learning',
     enTitle: 'Freelance - E-learning backend',
     fr: 'Architecture backend Python/Flask, base de données, authentification, progression et modules d’évaluation.',
     en: 'Python/Flask backend architecture, database design, authentication, progress tracking and evaluation modules.',
+  },
+  {
+    frDate: 'Déc. 2025 - Avr. 2026',
+    enDate: 'Dec. 2025 - Apr. 2026',
+    title: 'EdTech Program Manager - Neural Bridge',
+    fr: "Conception de contenus pédagogiques pour l'apprentissage du code et solutions IA adaptées aux apprenants adultes.",
+    en: 'Designed educational content for learning code and adapted AI solutions for adult learners.',
   },
   {
     frDate: 'Juil. 2024 - Oct. 2024',
@@ -657,20 +663,43 @@ function trackLandingView(label: string) {
 
 function Layout() {
   const { text } = useCopy()
+  const [menuOpen, setMenuOpen] = useState(false)
 
   return (
     <>
+      <a className="skipLink" href="#main-content">
+        {text.nav.skip}
+      </a>
       <header className="nav page">
-        <Link className="brand" to="/">
+        <Link className="brand" to="/" onClick={() => setMenuOpen(false)}>
           <span aria-hidden="true" />
           Alexis Othily
         </Link>
-        <nav aria-label={text.nav.label}>
-          <a href="/#services">{text.nav.services}</a>
-          <a href="/#projects">{text.nav.projects}</a>
-          <a href="/#skills">{text.nav.skills}</a>
-          <a href="/#experience">{text.nav.experience}</a>
-          <Link to="/cv">{text.nav.cv}</Link>
+        <button
+          className="menuButton"
+          type="button"
+          aria-controls="primary-navigation"
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((open) => !open)}
+        >
+          {text.nav.menu}
+        </button>
+        <nav id="primary-navigation" className={menuOpen ? 'open' : ''} aria-label={text.nav.label}>
+          <a href="/#projects" onClick={() => setMenuOpen(false)}>
+            {text.nav.projects}
+          </a>
+          <a href="/#services" onClick={() => setMenuOpen(false)}>
+            {text.nav.services}
+          </a>
+          <a href="/#experience" onClick={() => setMenuOpen(false)}>
+            {text.nav.experience}
+          </a>
+          <a className="navContact" href="/#contact" onClick={() => setMenuOpen(false)}>
+            {text.nav.contact}
+          </a>
+          <Link to="/cv" onClick={() => setMenuOpen(false)}>
+            {text.nav.cv}
+          </Link>
         </nav>
       </header>
       <Outlet />
@@ -707,7 +736,7 @@ function HomePage() {
   }, [])
 
   return (
-    <main className="page">
+    <main id="main-content" className="page">
       <section className="hero">
         <div className="heroCopy">
           <p className="eyebrow">{text.home.eyebrow}</p>
@@ -715,7 +744,7 @@ function HomePage() {
           <p className="lead">{text.home.lead}</p>
           <p className="heroNote">{text.home.note}</p>
           <div className="actions">
-            <a className="button primary" href="#services">
+            <a className="button primary" href="#projects">
               {text.home.projectsButton}
             </a>
             <a className="button" href={contactHref}>
@@ -745,43 +774,12 @@ function HomePage() {
         </figure>
       </section>
 
-      <section id="services" className="section">
-        <div className="sectionHead">
-          <div>
-            <p className="eyebrow">{text.servicesSection.eyebrow}</p>
-            <h2>{text.servicesSection.h2}</h2>
-          </div>
-        </div>
-        <div className="serviceGrid">
-          {services.map((service) => (
-            <article className="serviceCard" key={service.id}>
-              <div>
-                <p className="tag">{service[language].label}</p>
-                <h3>{service[language].title}</h3>
-                <p>{service[language].summary}</p>
-              </div>
-              <dl className="serviceMeta">
-                <div>
-                  <dt>{text.servicesSection.price}</dt>
-                  <dd>{service[visitorRegion][language]}</dd>
-                </div>
-                <div>
-                  <dt>{text.servicesSection.timeline}</dt>
-                  <dd>{service.timeline[language]}</dd>
-                </div>
-              </dl>
-              <a className="button primary" href={contactHref}>
-                {text.servicesSection.cta}
-              </a>
-            </article>
-          ))}
-        </div>
-      </section>
-
       <section id="projects" className="section">
         <div className="sectionHead">
-          <p className="eyebrow">{text.projectsSection.eyebrow}</p>
-          <h2>{text.projectsSection.h2}</h2>
+          <div>
+            <p className="eyebrow">{text.projectsSection.eyebrow}</p>
+            <h2>{text.projectsSection.h2}</h2>
+          </div>
         </div>
         <div className="projectGrid">
           {projects.map((project) => (
@@ -819,6 +817,42 @@ function HomePage() {
         </div>
       </section>
 
+      <section id="services" className="section">
+        <div className="sectionHead">
+          <div>
+            <p className="eyebrow">{text.servicesSection.eyebrow}</p>
+            <h2>{text.servicesSection.h2}</h2>
+          </div>
+        </div>
+        <div className="serviceGrid">
+          {services.map((service) => (
+            <article className="serviceCard" key={service.id}>
+              <div>
+                <p className="tag">{service[language].label}</p>
+                <h3>{service[language].title}</h3>
+                <p>{service[language].summary}</p>
+              </div>
+              <dl className="serviceMeta">
+                <div>
+                  <dt>{text.servicesSection.price}</dt>
+                  <dd>{service[visitorRegion][language]}</dd>
+                </div>
+                <div>
+                  <dt>{text.servicesSection.timeline}</dt>
+                  <dd>{service.timeline[language]}</dd>
+                </div>
+              </dl>
+              <a
+                className="button primary"
+                href={`${contactHref}&body=${encodeURIComponent(service[language].title)}`}
+              >
+                {text.servicesSection.cta}
+              </a>
+            </article>
+          ))}
+        </div>
+      </section>
+
       <section id="skills" className="section split">
         <div>
           <p className="eyebrow">{text.skillsSection.eyebrow}</p>
@@ -844,8 +878,10 @@ function HomePage() {
 
       <section id="experience" className="section">
         <div className="sectionHead">
-          <p className="eyebrow">{text.experienceSection.eyebrow}</p>
-          <h2>{text.experienceSection.h2}</h2>
+          <div>
+            <p className="eyebrow">{text.experienceSection.eyebrow}</p>
+            <h2>{text.experienceSection.h2}</h2>
+          </div>
         </div>
         <div className="timeline">
           {experiences.map((experience) => (
@@ -911,7 +947,7 @@ function CountPage() {
   const stats = remoteStats || localStats
 
   return (
-    <main className="page countPage">
+    <main id="main-content" className="page countPage">
       <section className="section">
         <p className="eyebrow">{text.count.eyebrow}</p>
         <h1>{text.count.h1}</h1>
@@ -986,7 +1022,7 @@ function CvPage() {
   const { text } = useCopy()
 
   return (
-    <main className="page cvPage">
+    <main id="main-content" className="page cvPage">
       <section className="section">
         <p className="eyebrow">{text.cvPage.eyebrow}</p>
         <h1>{text.cvPage.h1}</h1>
@@ -1000,7 +1036,7 @@ function CvPage() {
           </a>
         </div>
       </section>
-      <object className="pdfFrame" data={cvUrl} type="application/pdf">
+      <object className="pdfFrame" data={cvUrl} title={text.cvPage.h1} type="application/pdf">
         <a href={cvUrl}>{text.cvPage.fallback}</a>
       </object>
     </main>
