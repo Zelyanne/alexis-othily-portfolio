@@ -8,6 +8,7 @@ import {
   createRoute,
   createRouter,
 } from '@tanstack/react-router'
+import { ArrowButton, FocusRow, Pill, ShadowCard, StatCard } from './components/shadow-ui'
 import './styles.css'
 import portraitUrl from '../portrait-cutout.webp'
 
@@ -77,6 +78,12 @@ const copy = {
       domainsLabel: 'Domaines techniques',
       portraitAlt: "Portrait professionnel d'Alexis Othily",
       status: 'Disponible freelance',
+      stats: {
+        projects: 'Projets',
+        services: 'Offres',
+        experience: 'Expériences',
+        skills: 'Compétences',
+      },
     },
     servicesSection: {
       eyebrow: 'Offres freelance',
@@ -175,6 +182,12 @@ const copy = {
       domainsLabel: 'Technical domains',
       portraitAlt: 'Professional portrait of Alexis Othily',
       status: 'Available for freelance',
+      stats: {
+        projects: 'Projects',
+        services: 'Offers',
+        experience: 'Experience',
+        skills: 'Skills',
+      },
     },
     servicesSection: {
       eyebrow: 'Freelance offers',
@@ -251,6 +264,11 @@ const projects = [
     slug: 'ai-assistant',
     title: 'AI Assistant - Executive Hub',
     href: 'https://aizelyan.duckdns.org/',
+    preview: {
+      src: '/project-previews/ai-assistant-hero.jpg',
+      fr: "Aperçu du tableau de bord Executive Hub avec les actions de l'assistant IA",
+      en: 'Preview of the Executive Hub dashboard with AI assistant actions',
+    },
     stack: ['LangGraph', 'TypeScript', 'Mistral', 'MCP'],
     tone: 'teal',
     fr: {
@@ -274,6 +292,11 @@ const projects = [
     slug: 'lin-automation',
     title: 'Lin - Community Manager IA',
     href: 'https://lin-ai.duckdns.org/',
+    preview: {
+      src: '/project-previews/lin-automation-hero.jpg',
+      fr: 'Aperçu du workflow de création de contenu et calendrier de Lin',
+      en: 'Preview of Lin content creation workflow and calendar',
+    },
     stack: ['LangGraph', 'Python', 'Mistral'],
     tone: 'rose',
     fr: {
@@ -297,6 +320,11 @@ const projects = [
     slug: 'e-learning',
     title: 'E-learning platform',
     href: 'https://vps-55e5f624.vps.ovh.net/',
+    preview: {
+      src: '/project-previews/e-learning-hero.jpg',
+      fr: 'Aperçu du portail Nova Academy et de ses parcours de formation',
+      en: 'Preview of the Nova Academy portal and learning paths',
+    },
     stack: ['Python', 'Flask', 'SQL'],
     tone: 'amber',
     fr: {
@@ -662,7 +690,7 @@ function trackLandingView(label: string) {
 }
 
 function Layout() {
-  const { text } = useCopy()
+  const { language, text } = useCopy()
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
@@ -672,8 +700,10 @@ function Layout() {
       </a>
       <header className="nav page">
         <Link className="brand" to="/" onClick={() => setMenuOpen(false)}>
-          <span aria-hidden="true" />
-          Alexis Othily
+          <span className="brandMark" aria-hidden="true">
+            A
+          </span>
+          <span className="brandName">Alexis Othily</span>
         </Link>
         <button
           className="menuButton"
@@ -691,6 +721,9 @@ function Layout() {
           <a href="/#services" onClick={() => setMenuOpen(false)}>
             {text.nav.services}
           </a>
+          <a href="/#skills" onClick={() => setMenuOpen(false)}>
+            {text.nav.skills}
+          </a>
           <a href="/#experience" onClick={() => setMenuOpen(false)}>
             {text.nav.experience}
           </a>
@@ -701,6 +734,16 @@ function Layout() {
             {text.nav.cv}
           </Link>
         </nav>
+        <span
+          className="languageControl"
+          aria-label={language === 'fr' ? 'Langue actuelle : français' : 'Current language: English'}
+        >
+          {language.toUpperCase()}
+        </span>
+        <div className="railProfile">
+          <img src={portraitUrl} alt="" />
+          <span>{text.home.status}</span>
+        </div>
       </header>
       <Outlet />
       <footer className="footer page">
@@ -714,6 +757,14 @@ function Layout() {
 function HomePage() {
   const { language, text } = useCopy()
   const [visitorRegion, setVisitorRegion] = useState<VisitorRegion>(getVisitorRegion)
+  const [heroName, heroSpecialty = text.home.h1] = text.home.h1.split(' — ')
+  const featuredTools = [...new Set(domains.reduce<string[]>((tools, domain) => [...tools, ...domain.tools], []))].slice(0, 8)
+  const heroMetrics = [
+    { label: text.home.stats.projects, value: String(projects.length) },
+    { label: text.home.stats.services, value: String(services.length) },
+    { label: text.home.stats.experience, value: String(experiences.length) },
+    { label: text.home.stats.skills, value: String(skills.length) },
+  ]
 
   useEffect(() => {
     trackLandingView(text.count.viewLabel)
@@ -736,42 +787,73 @@ function HomePage() {
   }, [])
 
   return (
-    <main id="main-content" className="page">
+    <main id="main-content" className="page homePage">
       <section className="hero">
-        <div className="heroCopy">
-          <p className="eyebrow">{text.home.eyebrow}</p>
-          <h1>{text.home.h1}</h1>
+        <div className="heroCopy min-w-0">
+          <Pill className="eyebrow heroEyebrow">{text.home.eyebrow}</Pill>
+          <h1>
+            <span className="heroName">{heroName} —</span>
+            <span className="heroAccent">{heroSpecialty}</span>
+          </h1>
           <p className="lead">{text.home.lead}</p>
           <p className="heroNote">{text.home.note}</p>
-          <div className="actions">
-            <a className="button primary" href="#projects">
+          <div className="actions flex flex-wrap">
+            <ArrowButton className="button primary" href="#projects">
               {text.home.projectsButton}
-            </a>
-            <a className="button" href={contactHref}>
+            </ArrowButton>
+            <ArrowButton className="button" href={contactHref}>
               {text.home.contactButton}
-            </a>
+            </ArrowButton>
             <Link className="button" to="/cv">
               {text.home.cvButton}
             </Link>
           </div>
-          <div className="proof" aria-label={text.home.domainsLabel}>
-            {domains.map((domain) => (
-              <article className="proofItem" key={domain.title}>
-                <h2>{domain.title}</h2>
-                <p>{domain[language]}</p>
-                <div>
-                  {domain.tools.map((tool) => (
-                    <span key={tool}>{tool}</span>
-                  ))}
-                </div>
-              </article>
+          <div className="techPill flex flex-wrap" aria-label={text.home.domainsLabel}>
+            <span>{text.home.domainsLabel}</span>
+            {featuredTools.map((tool) => (
+              <Pill key={tool}>{tool}</Pill>
             ))}
           </div>
         </div>
-        <figure className="portrait">
-          <img src={portraitUrl} alt={text.home.portraitAlt} />
+        <figure className="portrait heroStage">
+          <div className="stageCode" aria-hidden="true">
+            <span>{'const solution = {'}</span>
+            <span>model: 'applied',</span>
+            <span>tools: 'connected',</span>
+            <span>{'}'}</span>
+          </div>
+          <span className="stageOrbit stageOrbitOne" aria-hidden="true" />
+          <span className="stageOrbit stageOrbitTwo" aria-hidden="true" />
           <figcaption>{text.home.status}</figcaption>
+          <img src={portraitUrl} alt={text.home.portraitAlt} />
+          <div className="heroStats grid grid-cols-2">
+            {heroMetrics.map((metric) => (
+              <StatCard key={metric.label} {...metric} />
+            ))}
+          </div>
         </figure>
+      </section>
+
+      <section className="section focusSection">
+        <div className="focusIntro">
+          <p className="eyebrow">{text.home.domainsLabel}</p>
+          <h2>{text.home.note}</h2>
+        </div>
+        <div className="focusRows">
+          {domains.map((domain, index) => (
+            <FocusRow key={domain.title} number={String(index + 1).padStart(2, '0')}>
+              <div>
+                <h3>{domain.title}</h3>
+                <p>{domain[language]}</p>
+              </div>
+              <div className="focusTools">
+                {domain.tools.slice(0, 4).map((tool) => (
+                  <Pill key={tool}>{tool}</Pill>
+                ))}
+              </div>
+            </FocusRow>
+          ))}
+        </div>
       </section>
 
       <section id="projects" className="section">
@@ -782,12 +864,18 @@ function HomePage() {
           </div>
         </div>
         <div className="projectGrid">
-          {projects.map((project) => (
-            <article className={`projectCard ${project.tone}`} key={project.slug}>
-              <div>
+          {projects.map((project, index) => (
+            <ShadowCard className={`projectCard ${project.tone}`} key={project.slug}>
+              <span className="cardNumber" aria-hidden="true">
+                {String(index + 1).padStart(2, '0')}
+              </span>
+              <div className="cardLead">
                 <p className="tag">{project[language].label}</p>
                 <h3>{project[language].title}</h3>
                 <p>{project[language].summary}</p>
+              </div>
+              <div className="projectVisual">
+                <img src={project.preview.src} alt={project.preview[language]} />
               </div>
               <dl className="projectMeta">
                 <div>
@@ -799,20 +887,21 @@ function HomePage() {
                   <dd>{project[language].result}</dd>
                 </div>
               </dl>
-              <div className="stack">
+              <div className="stack flex flex-wrap">
                 {project.stack.map((item) => (
-                  <span key={item}>{item}</span>
+                  <Pill key={item}>{item}</Pill>
                 ))}
               </div>
-              <a
+              <ArrowButton
+                className="projectLink"
                 href={project.href}
                 onClick={() => trackLandingClick(project.slug, project.title, project.href)}
                 target="_blank"
                 rel="noreferrer"
               >
-                {text.projectsSection.visit} <span aria-hidden="true">↗</span>
-              </a>
-            </article>
+                {text.projectsSection.visit}
+              </ArrowButton>
+            </ShadowCard>
           ))}
         </div>
       </section>
@@ -826,7 +915,7 @@ function HomePage() {
         </div>
         <div className="serviceGrid">
           {services.map((service) => (
-            <article className="serviceCard" key={service.id}>
+            <ShadowCard className="serviceCard" key={service.id}>
               <div>
                 <p className="tag">{service[language].label}</p>
                 <h3>{service[language].title}</h3>
@@ -842,13 +931,13 @@ function HomePage() {
                   <dd>{service.timeline[language]}</dd>
                 </div>
               </dl>
-              <a
+              <ArrowButton
                 className="button primary"
                 href={`${contactHref}&body=${encodeURIComponent(service[language].title)}`}
               >
                 {text.servicesSection.cta}
-              </a>
-            </article>
+              </ArrowButton>
+            </ShadowCard>
           ))}
         </div>
       </section>
@@ -860,17 +949,17 @@ function HomePage() {
           <p className="sectionText">{text.skillsSection.text}</p>
         </div>
         <div className="skillColumn">
-          <div className="skillList">
+          <div className="skillList flex flex-wrap">
             {skills.map((skill) => (
-              <span key={skill}>{skill}</span>
+              <Pill key={skill}>{skill}</Pill>
             ))}
           </div>
           <div className="credentialList" aria-label={text.skillsSection.credentialsLabel}>
             {credentials.map(([source, label]) => (
-              <article key={label}>
+              <ShadowCard key={label}>
                 <span>{source}</span>
                 <strong>{label}</strong>
-              </article>
+              </ShadowCard>
             ))}
           </div>
         </div>
