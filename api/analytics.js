@@ -22,6 +22,7 @@ const keys = {
   locations: 'analytics:locations',
   recent: 'analytics:recent',
   total: 'analytics:total',
+  // ponytail: one aggregate hash suits portfolio traffic; partition by month if HGETALL becomes expensive.
   viewSeries: 'analytics:view-series',
   views: 'analytics:views',
 }
@@ -119,9 +120,11 @@ export function summarizeViewSeries(entries = {}, filters) {
   const filtered = new Map()
 
   for (const [field, rawCount] of Object.entries(entries)) {
-    const [date, country, page, extra] = field.split('|')
+    const parts = field.split('|')
+    if (parts.length !== 3) continue
+    const [date, country, page] = parts
     const count = Number(rawCount)
-    if (extra || !isValidDate(date) || !country || !['base', 'freelance'].includes(page)) continue
+    if (!isValidDate(date) || !country || !['base', 'freelance'].includes(page)) continue
     if (!Number.isFinite(count) || count < 0) continue
 
     countries.add(country)

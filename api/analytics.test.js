@@ -50,6 +50,7 @@ test('summarizes lifetime page totals and zero-fills the selected timeline', () 
   const summary = analytics.summarizeViewSeries(
     {
       '2026-07-23|BJ|base': '2',
+      '2026-07-23|BJ|base|': 99,
       '2026-07-23|BJ|freelance': 1,
       '2026-07-24|FR|freelance': 4,
       malformed: 99,
