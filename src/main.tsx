@@ -9,7 +9,7 @@ import {
   createRouter,
 } from '@tanstack/react-router'
 import { ArrowButton, FocusRow, Pill, ShadowCard, StatCard } from './components/shadow-ui'
-import { getHeroScrollProgress } from './hero-motion'
+import { getHeroRevealProgress, getHeroScrollProgress } from './hero-motion'
 import './styles.css'
 import portraitUrl from '../portrait-cutout.webp'
 
@@ -861,7 +861,8 @@ function HomePage({ showServices = false }: { showServices?: boolean } = {}) {
       animationFrame = 0
       const progress = reducedMotion.matches
         ? 1
-        : getHeroScrollProgress(scene.getBoundingClientRect().top, scene.offsetHeight, window.innerHeight)
+        : getHeroScrollProgress(scene.getBoundingClientRect().top, scene.offsetHeight, window.innerHeight, 2)
+      const revealProgress = getHeroRevealProgress(progress)
       const remaining = 1 - progress
 
       scene.style.setProperty('--hero-progress', progress.toFixed(4))
@@ -870,9 +871,10 @@ function HomePage({ showServices = false }: { showServices?: boolean } = {}) {
       scene.style.setProperty('--hero-portrait-x', `${(25 * progress).toFixed(3)}vw`)
       scene.style.setProperty('--hero-portrait-scale', (1 - 0.14 * progress).toFixed(4))
       scene.style.setProperty('--hero-backdrop-x', `${(-3 * progress).toFixed(3)}vw`)
-      scene.style.setProperty('--hero-copy-opacity', (0.18 + 0.82 * progress).toFixed(4))
+      scene.style.setProperty('--hero-copy-opacity', revealProgress.toFixed(4))
       scene.style.setProperty('--hero-copy-y', `${(30 * remaining).toFixed(2)}px`)
-      scene.style.setProperty('--hero-stats-opacity', (0.25 + 0.75 * progress).toFixed(4))
+      scene.style.setProperty('--hero-copy-pointer-events', revealProgress ? 'auto' : 'none')
+      scene.style.setProperty('--hero-stats-opacity', revealProgress.toFixed(4))
       scene.style.setProperty('--hero-stats-y', `${(20 * remaining).toFixed(2)}px`)
     }
 

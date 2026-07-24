@@ -255,6 +255,7 @@ button:focus-visible {
   --hero-portrait-scale: 0.86;
   --hero-backdrop-x: -3vw;
   --hero-copy-opacity: 1;
+  --hero-copy-pointer-events: auto;
   --hero-copy-y: 0px;
   --hero-stats-opacity: 1;
   --hero-stats-y: 0px;
@@ -263,7 +264,7 @@ button:focus-visible {
 }
 
 .heroScene.heroMotionReady {
-  height: 180svh;
+  height: 380svh;
 }
 
 .eyebrow {
@@ -515,6 +516,7 @@ button:focus-visible {
   background: rgba(52, 17, 18, 0.28);
   color: white;
   opacity: var(--hero-copy-opacity);
+  pointer-events: var(--hero-copy-pointer-events);
   backdrop-filter: blur(12px);
   transform: translate3d(0, var(--hero-copy-y), 0);
   will-change: opacity, transform;
@@ -522,6 +524,7 @@ button:focus-visible {
 
 .heroCopy:focus-within {
   opacity: 1;
+  pointer-events: auto;
 }
 
 .heroSpecialty {
@@ -1476,7 +1479,7 @@ button:focus-visible {
   }
 
   .heroScene.heroMotionReady {
-    height: 150svh;
+    height: 350svh;
   }
 
   .hero.heroStage {
