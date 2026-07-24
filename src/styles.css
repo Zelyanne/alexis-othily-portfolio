@@ -990,7 +990,7 @@ button:focus-visible {
 
 .analyticsGrid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 14px;
 }
 
@@ -1027,6 +1027,116 @@ button:focus-visible {
 .analyticsTable p {
   color: var(--muted);
   font-size: 13px;
+}
+
+.analyticsFilters {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) repeat(2, minmax(150px, 0.7fr));
+  gap: 14px;
+  margin: 24px 0 16px;
+}
+
+.analyticsFilters label {
+  display: grid;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.analyticsFilters input,
+.analyticsFilters select {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+}
+
+.analyticsLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.analyticsLegend span::before {
+  display: inline-block;
+  width: 24px;
+  height: 3px;
+  margin-right: 7px;
+  content: '';
+  vertical-align: middle;
+}
+
+.analyticsLegend .base::before {
+  background: var(--ink);
+}
+
+.analyticsLegend .freelance::before {
+  background: var(--coral-dark);
+}
+
+.analyticsChart {
+  overflow: hidden;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--paper);
+}
+
+.analyticsChart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 220px;
+}
+
+.analyticsChart text {
+  fill: var(--muted);
+  font-size: 12px;
+}
+
+.analyticsAxis {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+.analyticsLine {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.analyticsLine.base {
+  stroke: var(--ink);
+}
+
+.analyticsLine.freelance {
+  stroke: var(--coral-dark);
+}
+
+.analyticsDot.base {
+  fill: var(--ink);
+}
+
+.analyticsDot.freelance {
+  fill: var(--coral-dark);
+}
+
+.analyticsChartDates {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 12px;
 }
 
 .analyticsTable {
@@ -1570,6 +1680,10 @@ button:focus-visible {
   }
 
   .analyticsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .analyticsFilters {
     grid-template-columns: 1fr;
   }
 

@@ -144,18 +144,34 @@ const copy = {
       noticeSuffix:
         'Si le stockage est temporaire, les chiffres peuvent se perdre quand Vercel redémarre la fonction.',
       apiError: 'API analytics indisponible.',
-      statsLabel: 'Statistiques de clics',
+      statsLabel: 'Statistiques analytics',
       storage: 'Stockage',
       persistentStorage: 'Persistant - Upstash Redis',
       temporaryStorage: 'Temporaire - ajoute Upstash Redis sur Vercel pour conserver les vues.',
       views: 'Vues',
       viewsHelp: 'sessions de landing page',
+      baseViews: 'Chemin principal',
+      baseViewsHelp: 'vues depuis la mise en ligne du suivi séparé',
+      freelanceViews: 'Chemin freelance',
+      freelanceViewsHelp: 'vues depuis la mise en ligne du suivi séparé',
       clicks: 'Clics',
       clicksHelp: 'liens projets',
       locations: 'Localisations',
       locationsHelp: 'locale / fuseau horaire',
       locationTitle: 'Localisation',
       recentTitle: 'Derniers événements',
+      splitNotice: 'La séparation principal / freelance commence avec cette version.',
+      chartTitle: 'Évolution des vues',
+      chartDescription: 'Vues quotidiennes du chemin principal et du chemin freelance',
+      countryFilter: 'Pays',
+      allCountries: 'Tous les pays',
+      unknownCountry: 'Pays inconnu',
+      fromDate: 'Du',
+      toDate: 'Au',
+      baseLegend: 'Principal',
+      freelanceLegend: 'Freelance',
+      basePage: 'Chemin principal',
+      freelancePage: 'Chemin freelance',
       directReferrer: 'Accès direct',
       empty: 'Aucun événement enregistré.',
       viewEvent: 'Vue',
@@ -248,18 +264,34 @@ const copy = {
       noticeSuffix:
         'If storage is temporary, numbers can disappear when Vercel restarts the function.',
       apiError: 'Analytics API unavailable.',
-      statsLabel: 'Click statistics',
+      statsLabel: 'Analytics statistics',
       storage: 'Storage',
       persistentStorage: 'Persistent - Upstash Redis',
       temporaryStorage: 'Temporary - add Upstash Redis on Vercel to keep views.',
       views: 'Views',
       viewsHelp: 'landing page sessions',
+      baseViews: 'Main path',
+      baseViewsHelp: 'views since split tracking went live',
+      freelanceViews: 'Freelance path',
+      freelanceViewsHelp: 'views since split tracking went live',
       clicks: 'Clicks',
       clicksHelp: 'project links',
       locations: 'Locations',
       locationsHelp: 'locale / time zone',
       locationTitle: 'Location',
       recentTitle: 'Recent events',
+      splitNotice: 'The main / freelance split starts with this version.',
+      chartTitle: 'View evolution',
+      chartDescription: 'Daily views for the main and freelance paths',
+      countryFilter: 'Country',
+      allCountries: 'All countries',
+      unknownCountry: 'Unknown country',
+      fromDate: 'From',
+      toDate: 'To',
+      baseLegend: 'Main',
+      freelanceLegend: 'Freelance',
+      basePage: 'Main path',
+      freelancePage: 'Freelance path',
       directReferrer: 'Direct visit',
       empty: 'No event recorded.',
       viewEvent: 'View',
@@ -1061,6 +1093,9 @@ function HomePage({ showServices = false }: { showServices?: boolean } = {}) {
 
 function CountPage() {
   const { language, text } = useCopy()
+  const [country, setCountry] = useState('all')
+  const [from, setFrom] = useState(analyticsDefaultFrom)
+  const [to, setTo] = useState(analyticsDefaultTo)
   const [remoteStats, setRemoteStats] = useState<AnalyticsStats | null>(null)
   const [remoteError, setRemoteError] = useState('')
   const [localEvents, setLocalEvents] = useState<AnalyticsEvent[]>([])
@@ -1069,25 +1104,56 @@ function CountPage() {
     setLocalEvents(readLocalAnalyticsEvents())
 
     const refreshStats = () => {
-      fetch(analyticsEndpoint)
+      const params = new URLSearchParams({ from, to })
+      if (country !== 'all') params.set('country', country)
+      fetch(`${analyticsEndpoint}?${params}`)
         .then((response) => {
           if (!response.ok) throw new Error('analytics unavailable')
           return response.json() as Promise<AnalyticsStats>
         })
-        .then((stats) => {
-          setRemoteStats(stats)
+        .then((responseStats) => {
+          setRemoteStats({
+            ...responseStats,
+            countries: responseStats.countries || [],
+            pageViews: responseStats.pageViews || { base: 0, freelance: 0 },
+            viewSeries: responseStats.viewSeries || [],
+          })
           setRemoteError('')
         })
-        .catch(() => setRemoteError(text.count.apiError))
+        .catch(() => {
+          setRemoteStats(null)
+          setRemoteError(text.count.apiError)
+        })
     }
 
     refreshStats()
     const timer = window.setInterval(refreshStats, 5000)
     return () => window.clearInterval(timer)
-  }, [text.count.apiError])
+  }, [country, from, text.count.apiError, to])
 
-  const localStats = useMemo(() => getAnalyticsStats(localEvents), [localEvents])
+  const localStats = useMemo(
+    () => getAnalyticsStats(localEvents, from, to, country),
+    [country, from, localEvents, to],
+  )
   const stats = remoteStats || localStats
+  const chartWidth = 720
+  const chartHeight = 280
+  const chartPadding = 42
+  const maxViews = Math.max(1, ...stats.viewSeries.flatMap((point) => [point.base, point.freelance]))
+  const pointSpacing = (chartWidth - chartPadding * 2) / Math.max(stats.viewSeries.length - 1, 1)
+  const basePoints = stats.viewSeries
+    .map(
+      (point, index) =>
+        `${chartPadding + index * pointSpacing},${chartHeight - chartPadding - (point.base / maxViews) * (chartHeight - chartPadding * 2)}`,
+    )
+    .join(' ')
+  const freelancePoints = stats.viewSeries
+    .map(
+      (point, index) =>
+        `${chartPadding + index * pointSpacing},${chartHeight - chartPadding - (point.freelance / maxViews) * (chartHeight - chartPadding * 2)}`,
+    )
+    .join(' ')
+  const hasChartViews = stats.viewSeries.some((point) => point.base || point.freelance)
 
   return (
     <main id="main-content" className="page countPage">
@@ -1111,6 +1177,16 @@ function CountPage() {
           <p>{text.count.viewsHelp}</p>
         </article>
         <article>
+          <span>{text.count.baseViews}</span>
+          <strong>{stats.pageViews.base}</strong>
+          <p>{text.count.baseViewsHelp}</p>
+        </article>
+        <article>
+          <span>{text.count.freelanceViews}</span>
+          <strong>{stats.pageViews.freelance}</strong>
+          <p>{text.count.freelanceViewsHelp}</p>
+        </article>
+        <article>
           <span>{text.count.clicks}</span>
           <strong>{stats.clicks}</strong>
           <p>{text.count.clicksHelp}</p>
@@ -1120,6 +1196,83 @@ function CountPage() {
           <strong>{stats.locations.length}</strong>
           <p>{text.count.locationsHelp}</p>
         </article>
+      </section>
+      <p className="analyticsNotice">{text.count.splitNotice}</p>
+
+      <section className="section analyticsChartSection">
+        <div className="sectionHead">
+          <div>
+            <p className="eyebrow">Analytics</p>
+            <h2>{text.count.chartTitle}</h2>
+          </div>
+        </div>
+
+        <div className="analyticsFilters">
+          <label>
+            <span>{text.count.countryFilter}</span>
+            <select value={country} onChange={(event) => setCountry(event.target.value)}>
+              <option value="all">{text.count.allCountries}</option>
+              {stats.countries.map((countryCode) => (
+                <option key={countryCode} value={countryCode}>
+                  {countryCode === 'unknown' ? text.count.unknownCountry : countryCode}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            <span>{text.count.fromDate}</span>
+            <input type="date" value={from} max={to} onChange={(event) => setFrom(event.target.value)} />
+          </label>
+          <label>
+            <span>{text.count.toDate}</span>
+            <input type="date" value={to} min={from} onChange={(event) => setTo(event.target.value)} />
+          </label>
+        </div>
+
+        <div className="analyticsLegend" aria-hidden="true">
+          <span className="base">{text.count.baseLegend}</span>
+          <span className="freelance">{text.count.freelanceLegend}</span>
+        </div>
+
+        {hasChartViews ? (
+          <div className="analyticsChart">
+            <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} role="img" aria-label={text.count.chartDescription}>
+              <title>{text.count.chartDescription}</title>
+              <line className="analyticsAxis" x1={chartPadding} y1={chartPadding} x2={chartPadding} y2={chartHeight - chartPadding} />
+              <line className="analyticsAxis" x1={chartPadding} y1={chartHeight - chartPadding} x2={chartWidth - chartPadding} y2={chartHeight - chartPadding} />
+              <text x="8" y={chartPadding + 4}>{maxViews}</text>
+              <text x="24" y={chartHeight - chartPadding + 4}>0</text>
+              <polyline className="analyticsLine base" points={basePoints} />
+              <polyline className="analyticsLine freelance" points={freelancePoints} />
+              {stats.viewSeries.map((point, index) => (
+                <g key={point.date}>
+                  {point.base > 0 && (
+                    <circle
+                      className="analyticsDot base"
+                      cx={chartPadding + index * pointSpacing}
+                      cy={chartHeight - chartPadding - (point.base / maxViews) * (chartHeight - chartPadding * 2)}
+                      r="4"
+                    />
+                  )}
+                  {point.freelance > 0 && (
+                    <circle
+                      className="analyticsDot freelance"
+                      cx={chartPadding + index * pointSpacing}
+                      cy={chartHeight - chartPadding - (point.freelance / maxViews) * (chartHeight - chartPadding * 2)}
+                      r="4"
+                    />
+                  )}
+                </g>
+              ))}
+            </svg>
+            <div className="analyticsChartDates">
+              <span>{new Date(`${stats.viewSeries[0].date}T12:00:00Z`).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US')}</span>
+              <span>{new Date(`${stats.viewSeries[stats.viewSeries.length - 1].date}T12:00:00Z`).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US')}</span>
+            </div>
+          </div>
+        ) : (
+          <p>{text.count.empty}</p>
+        )}
       </section>
 
       <section className="section analyticsTable">
@@ -1145,7 +1298,10 @@ function CountPage() {
             {stats.recent.map((event) => (
               <li key={`${event.timestamp}-${event.id}`}>
                 <span>
-                  {event.type === 'view' ? text.count.viewEvent : text.count.clickEvent} - {event.label} -{' '}
+                  {(event.page || (event.path?.replace(/\/+$/, '') === '/freelance' ? 'freelance' : 'base')) === 'freelance'
+                    ? text.count.freelancePage
+                    : text.count.basePage}{' '}
+                  - {event.type === 'view' ? text.count.viewEvent : text.count.clickEvent} - {event.label} -{' '}
                   {event.location || `${event.locale || 'locale inconnue'} / ${event.timeZone || 'zone inconnue'}`} -{' '}
                   {getReferrerLabel(event.referrer, text.count.directReferrer)}
                 </span>
