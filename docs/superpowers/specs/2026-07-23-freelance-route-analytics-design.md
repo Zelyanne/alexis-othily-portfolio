@@ -1,7 +1,7 @@
 # Freelance Route and Analytics Design
 
 Date: 2026-07-23
-Status: Approved design, awaiting written-spec review
+Status: Approved
 
 ## Goal
 
