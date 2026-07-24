@@ -17,13 +17,20 @@ const email = 'othilyjose14@gmail.com'
 const analyticsEndpoint = '/api/analytics'
 const analyticsStorageKey = 'alexis-portfolio-clicks'
 const analyticsViewSessionKey = 'alexis-portfolio-viewed'
+const analyticsDayMilliseconds = 24 * 60 * 60 * 1000
+const analyticsDefaultTo = new Date().toISOString().slice(0, 10)
+const analyticsDefaultFrom = new Date(Date.now() - 29 * analyticsDayMilliseconds).toISOString().slice(0, 10)
+
+type AnalyticsPage = 'base' | 'freelance'
 
 type AnalyticsEvent = {
+  country?: string
   href?: string
   id: string
   label: string
   locale: string
   location?: string
+  page?: AnalyticsPage
   path: string
   referrer?: string
   timeZone: string
@@ -33,10 +40,13 @@ type AnalyticsEvent = {
 
 type AnalyticsStats = {
   clicks: number
+  countries: string[]
+  pageViews: Record<AnalyticsPage, number>
   persistent?: boolean
   storage?: string
   total: number
   views: number
+  viewSeries: Array<{ date: string; base: number; freelance: number }>
   locations: Array<{ label: string; count: number }>
   recent: AnalyticsEvent[]
 }
@@ -582,24 +592,58 @@ function readLocalAnalyticsEvents() {
   }
 }
 
-function getAnalyticsStats(events: AnalyticsEvent[]): AnalyticsStats {
+function getAnalyticsStats(
+  events: AnalyticsEvent[],
+  from = analyticsDefaultFrom,
+  to = analyticsDefaultTo,
+  selectedCountry = 'all',
+): AnalyticsStats {
+  const countries = new Set<string>()
+  const dailyViews = new Map<string, { base: number; freelance: number }>()
   const locationCounts = new Map<string, number>()
+  const pageViews: Record<AnalyticsPage, number> = { base: 0, freelance: 0 }
   let clicks = 0
   let views = 0
 
   for (const event of events) {
     const type = event.type || 'click'
-    if (type === 'view') views += 1
     if (type === 'click') clicks += 1
+    if (type === 'view') {
+      views += 1
+      const country = event.country || 'unknown'
+      const page = event.page || (event.path?.replace(/\/+$/, '') === '/freelance' ? 'freelance' : 'base')
+      const date = event.timestamp.slice(0, 10)
+      countries.add(country)
+      pageViews[page] += 1
+
+      if (date >= from && date <= to && (selectedCountry === 'all' || selectedCountry === country)) {
+        const point = dailyViews.get(date) || { base: 0, freelance: 0 }
+        point[page] += 1
+        dailyViews.set(date, point)
+      }
+    }
 
     const label = event.location || `${event.locale || 'locale inconnue'} / ${event.timeZone || 'zone inconnue'}`
     locationCounts.set(label, (locationCounts.get(label) || 0) + 1)
   }
 
+  const viewSeries = []
+  for (
+    let time = Date.parse(`${from}T00:00:00.000Z`);
+    time <= Date.parse(`${to}T00:00:00.000Z`);
+    time += analyticsDayMilliseconds
+  ) {
+    const date = new Date(time).toISOString().slice(0, 10)
+    viewSeries.push({ date, ...(dailyViews.get(date) || { base: 0, freelance: 0 }) })
+  }
+
   return {
     clicks,
+    countries: [...countries].sort(),
+    pageViews,
     total: events.length,
     views,
+    viewSeries,
     locations: [...locationCounts.entries()]
       .map(([label, count]) => ({ label, count }))
       .sort((a, b) => b.count - a.count),
@@ -649,13 +693,17 @@ function useCopy() {
 }
 
 function trackAnalyticsEvent(type: 'click' | 'view', id: string, label: string, href?: string) {
+  const path = window.location.pathname
+  const page: AnalyticsPage = path.replace(/\/+$/, '') === '/freelance' ? 'freelance' : 'base'
   const event: AnalyticsEvent = {
+    country: 'unknown',
     href,
     id,
     label,
     locale: navigator.language,
     location: `${navigator.language} / ${Intl.DateTimeFormat().resolvedOptions().timeZone}`,
-    path: window.location.pathname,
+    page,
+    path,
     referrer: document.referrer,
     timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     timestamp: new Date().toISOString(),
@@ -684,9 +732,11 @@ function trackLandingClick(id: string, label: string, href: string) {
 }
 
 function trackLandingView(label: string) {
-  if (window.sessionStorage.getItem(analyticsViewSessionKey)) return
-  window.sessionStorage.setItem(analyticsViewSessionKey, '1')
-  trackAnalyticsEvent('view', 'landing-page', label)
+  const page = window.location.pathname.replace(/\/+$/, '') === '/freelance' ? 'freelance' : 'base'
+  const sessionKey = `${analyticsViewSessionKey}:${page}`
+  if (window.sessionStorage.getItem(sessionKey)) return
+  window.sessionStorage.setItem(sessionKey, '1')
+  trackAnalyticsEvent('view', `${page}-page`, label)
 }
 
 function Layout() {
@@ -718,7 +768,7 @@ function Layout() {
           <a href="/#projects" onClick={() => setMenuOpen(false)}>
             {text.nav.projects}
           </a>
-          <a href="/#services" onClick={() => setMenuOpen(false)}>
+          <a href="/freelance#services" onClick={() => setMenuOpen(false)}>
             {text.nav.services}
           </a>
           <a href="/#skills" onClick={() => setMenuOpen(false)}>
@@ -754,14 +804,14 @@ function Layout() {
   )
 }
 
-function HomePage() {
+function HomePage({ showServices = false }: { showServices?: boolean } = {}) {
   const { language, text } = useCopy()
   const [visitorRegion, setVisitorRegion] = useState<VisitorRegion>(getVisitorRegion)
   const [heroName, heroSpecialty = text.home.h1] = text.home.h1.split(' — ')
   const featuredTools = [...new Set(domains.reduce<string[]>((tools, domain) => [...tools, ...domain.tools], []))].slice(0, 8)
   const heroMetrics = [
     { label: text.home.stats.projects, value: String(projects.length) },
-    { label: text.home.stats.services, value: String(services.length) },
+    ...(showServices ? [{ label: text.home.stats.services, value: String(services.length) }] : []),
     { label: text.home.stats.experience, value: String(experiences.length) },
     { label: text.home.stats.skills, value: String(skills.length) },
   ]
@@ -771,6 +821,8 @@ function HomePage() {
   }, [text.count.viewLabel])
 
   useEffect(() => {
+    if (!showServices) return
+
     fetch(`${analyticsEndpoint}?geo=1`)
       .then((response) => {
         if (!response.ok) throw new Error('geo unavailable')
@@ -784,7 +836,7 @@ function HomePage() {
       .catch(() => {
         setVisitorRegion(getVisitorRegion())
       })
-  }, [])
+  }, [showServices])
 
   return (
     <main id="main-content" className="page homePage">
@@ -906,7 +958,8 @@ function HomePage() {
         </div>
       </section>
 
-      <section id="services" className="section">
+      {showServices && (
+        <section id="services" className="section">
         <div className="sectionHead">
           <div>
             <p className="eyebrow">{text.servicesSection.eyebrow}</p>
@@ -940,7 +993,8 @@ function HomePage() {
             </ShadowCard>
           ))}
         </div>
-      </section>
+        </section>
+      )}
 
       <section id="skills" className="section split">
         <div>
@@ -1140,6 +1194,12 @@ const indexRoute = createRoute({
   component: HomePage,
 })
 
+const freelanceRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: 'freelance',
+  component: () => <HomePage showServices />,
+})
+
 const cvRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: 'cv',
@@ -1152,7 +1212,7 @@ const countRoute = createRoute({
   component: CountPage,
 })
 
-const routeTree = rootRoute.addChildren([indexRoute, cvRoute, countRoute])
+const routeTree = rootRoute.addChildren([indexRoute, freelanceRoute, cvRoute, countRoute])
 
 const router = createRouter({
   routeTree,
