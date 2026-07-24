@@ -1,4 +1,4 @@
-import { StrictMode, useEffect, useMemo, useState } from 'react'
+import { StrictMode, useEffect, useMemo, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import {
   Link,
@@ -9,6 +9,7 @@ import {
   createRouter,
 } from '@tanstack/react-router'
 import { ArrowButton, FocusRow, Pill, ShadowCard, StatCard } from './components/shadow-ui'
+import { getHeroScrollProgress } from './hero-motion'
 import './styles.css'
 import portraitUrl from '../portrait-cutout.webp'
 
@@ -839,6 +840,7 @@ function Layout() {
 function HomePage({ showServices = false }: { showServices?: boolean } = {}) {
   const { language, text } = useCopy()
   const [visitorRegion, setVisitorRegion] = useState<VisitorRegion>(getVisitorRegion)
+  const heroSceneRef = useRef<HTMLElement>(null)
   const [heroName, heroSpecialty = text.home.h1] = text.home.h1.split(' — ')
   const featuredTools = [...new Set(domains.reduce<string[]>((tools, domain) => [...tools, ...domain.tools], []))].slice(0, 8)
   const heroMetrics = [
@@ -847,6 +849,51 @@ function HomePage({ showServices = false }: { showServices?: boolean } = {}) {
     { label: text.home.stats.experience, value: String(experiences.length) },
     { label: text.home.stats.skills, value: String(skills.length) },
   ]
+
+  useEffect(() => {
+    const scene = heroSceneRef.current
+    if (!scene) return
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    let animationFrame = 0
+
+    const paint = () => {
+      animationFrame = 0
+      const progress = reducedMotion.matches
+        ? 1
+        : getHeroScrollProgress(scene.getBoundingClientRect().top, scene.offsetHeight, window.innerHeight)
+      const remaining = 1 - progress
+
+      scene.style.setProperty('--hero-progress', progress.toFixed(4))
+      scene.style.setProperty('--hero-title-x', `${(-18 * progress).toFixed(3)}vw`)
+      scene.style.setProperty('--hero-title-y', `${(-5 * progress).toFixed(3)}vh`)
+      scene.style.setProperty('--hero-portrait-x', `${(25 * progress).toFixed(3)}vw`)
+      scene.style.setProperty('--hero-portrait-scale', (1 - 0.14 * progress).toFixed(4))
+      scene.style.setProperty('--hero-backdrop-x', `${(-3 * progress).toFixed(3)}vw`)
+      scene.style.setProperty('--hero-copy-opacity', (0.18 + 0.82 * progress).toFixed(4))
+      scene.style.setProperty('--hero-copy-y', `${(30 * remaining).toFixed(2)}px`)
+      scene.style.setProperty('--hero-stats-opacity', (0.25 + 0.75 * progress).toFixed(4))
+      scene.style.setProperty('--hero-stats-y', `${(20 * remaining).toFixed(2)}px`)
+    }
+
+    const requestPaint = () => {
+      if (!animationFrame) animationFrame = window.requestAnimationFrame(paint)
+    }
+
+    scene.classList.add('heroMotionReady')
+    paint()
+    window.addEventListener('scroll', requestPaint, { passive: true })
+    window.addEventListener('resize', requestPaint)
+    reducedMotion.addEventListener('change', requestPaint)
+
+    return () => {
+      window.removeEventListener('scroll', requestPaint)
+      window.removeEventListener('resize', requestPaint)
+      reducedMotion.removeEventListener('change', requestPaint)
+      if (animationFrame) window.cancelAnimationFrame(animationFrame)
+      scene.classList.remove('heroMotionReady')
+    }
+  }, [])
 
   useEffect(() => {
     trackLandingView(text.count.viewLabel)
@@ -872,34 +919,8 @@ function HomePage({ showServices = false }: { showServices?: boolean } = {}) {
 
   return (
     <main id="main-content" className="page homePage">
-      <section className="hero">
-        <div className="heroCopy min-w-0">
-          <Pill className="eyebrow heroEyebrow">{text.home.eyebrow}</Pill>
-          <h1>
-            <span className="heroName">{heroName} —</span>
-            <span className="heroAccent">{heroSpecialty}</span>
-          </h1>
-          <p className="lead">{text.home.lead}</p>
-          <p className="heroNote">{text.home.note}</p>
-          <div className="actions flex flex-wrap">
-            <ArrowButton className="button primary" href="#projects">
-              {text.home.projectsButton}
-            </ArrowButton>
-            <ArrowButton className="button" href={contactHref}>
-              {text.home.contactButton}
-            </ArrowButton>
-            <Link className="button" to="/cv">
-              {text.home.cvButton}
-            </Link>
-          </div>
-          <div className="techPill flex flex-wrap" aria-label={text.home.domainsLabel}>
-            <span>{text.home.domainsLabel}</span>
-            {featuredTools.map((tool) => (
-              <Pill key={tool}>{tool}</Pill>
-            ))}
-          </div>
-        </div>
-        <figure className="portrait heroStage">
+      <section ref={heroSceneRef} className="heroScene">
+        <div className="hero heroStage">
           <div className="stageCode" aria-hidden="true">
             <span>{'const solution = {'}</span>
             <span>model: 'applied',</span>
@@ -908,14 +929,46 @@ function HomePage({ showServices = false }: { showServices?: boolean } = {}) {
           </div>
           <span className="stageOrbit stageOrbitOne" aria-hidden="true" />
           <span className="stageOrbit stageOrbitTwo" aria-hidden="true" />
-          <figcaption>{text.home.status}</figcaption>
-          <img src={portraitUrl} alt={text.home.portraitAlt} />
+
+          <h1 className="heroTitle">
+            <span className="heroName">{heroName}</span>
+          </h1>
+
+          <figure className="portrait heroPortrait">
+            <figcaption>{text.home.status}</figcaption>
+            <img src={portraitUrl} alt={text.home.portraitAlt} />
+          </figure>
+
+          <div className="heroCopy min-w-0">
+            <Pill className="eyebrow heroEyebrow">{text.home.eyebrow}</Pill>
+            <p className="heroSpecialty">{heroSpecialty}</p>
+            <p className="lead">{text.home.lead}</p>
+            <p className="heroNote">{text.home.note}</p>
+            <div className="actions flex flex-wrap">
+              <ArrowButton className="button primary" href="#projects">
+                {text.home.projectsButton}
+              </ArrowButton>
+              <ArrowButton className="button" href={contactHref}>
+                {text.home.contactButton}
+              </ArrowButton>
+              <Link className="button" to="/cv">
+                {text.home.cvButton}
+              </Link>
+            </div>
+            <div className="techPill flex flex-wrap" aria-label={text.home.domainsLabel}>
+              <span>{text.home.domainsLabel}</span>
+              {featuredTools.map((tool) => (
+                <Pill key={tool}>{tool}</Pill>
+              ))}
+            </div>
+          </div>
+
           <div className="heroStats grid grid-cols-2">
             {heroMetrics.map((metric) => (
               <StatCard key={metric.label} {...metric} />
             ))}
           </div>
-        </figure>
+        </div>
       </section>
 
       <section className="section focusSection">
