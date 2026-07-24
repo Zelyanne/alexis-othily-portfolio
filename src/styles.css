@@ -464,9 +464,6 @@ button:focus-visible {
   overflow: hidden;
   margin: 0;
   pointer-events: none;
-  transform: translate3d(var(--hero-portrait-x), 0, 0) scale(var(--hero-portrait-scale));
-  transform-origin: center bottom;
-  will-change: transform;
 }
 
 .heroPortrait img {
@@ -479,7 +476,9 @@ button:focus-visible {
   object-fit: contain;
   object-position: center bottom;
   filter: drop-shadow(0 28px 22px rgba(42, 13, 14, 0.24));
-  transform: translateX(-50%);
+  transform: translate3d(calc(-50% + var(--hero-portrait-x)), 0, 0) scale(var(--hero-portrait-scale));
+  transform-origin: center bottom;
+  will-change: transform;
 }
 
 .heroPortrait figcaption {
@@ -1852,6 +1851,10 @@ button:focus-visible {
 
   .heroStats {
     top: 92px;
+  }
+
+  .heroPortrait figcaption {
+    top: 78px;
   }
 }
 
