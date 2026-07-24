@@ -5,9 +5,11 @@ const memory = globalThis.__alexisAnalytics || {
   locations: new Map(),
   recent: [],
   total: 0,
+  viewSeries: new Map(),
   views: 0,
 }
 
+memory.viewSeries ||= new Map()
 globalThis.__alexisAnalytics = memory
 
 const redisUrl = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL
@@ -20,8 +22,11 @@ const keys = {
   locations: 'analytics:locations',
   recent: 'analytics:recent',
   total: 'analytics:total',
+  viewSeries: 'analytics:view-series',
   views: 'analytics:views',
 }
+const dayMilliseconds = 24 * 60 * 60 * 1000
+const datePattern = /^\d{4}-\d{2}-\d{2}$/
 const westAfricaCountries = new Set([
   'BJ',
   'BF',
@@ -74,8 +79,80 @@ function getGeo(req, fallback) {
   }
 }
 
-function getLocation(req, fallback) {
-  return getGeo(req, fallback).label
+function isValidDate(value) {
+  if (!datePattern.test(value)) return false
+  const parsed = new Date(`${value}T00:00:00.000Z`)
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value
+}
+
+export function normalizePage(path = '/') {
+  return String(path).replace(/\/+$/, '') === '/freelance' ? 'freelance' : 'base'
+}
+
+export function getAnalyticsFilters(query = {}, now = new Date()) {
+  const today = now.toISOString().slice(0, 10)
+  const defaultFrom = new Date(now.getTime() - 29 * dayMilliseconds).toISOString().slice(0, 10)
+  const from = query.from ? String(query.from) : defaultFrom
+  const to = query.to ? String(query.to) : today
+  const country = query.country ? String(query.country) : 'all'
+
+  if (!isValidDate(from) || !isValidDate(to)) throw new RangeError('Invalid analytics filters')
+
+  const fromTime = Date.parse(`${from}T00:00:00.000Z`)
+  const toTime = Date.parse(`${to}T00:00:00.000Z`)
+  const days = (toTime - fromTime) / dayMilliseconds + 1
+  if (days < 1 || days > 366) throw new RangeError('Invalid analytics filters')
+  if (country !== 'all' && country !== 'unknown' && !/^[A-Z]{2}$/.test(country)) {
+    throw new RangeError('Invalid analytics filters')
+  }
+
+  return { country, from, to }
+}
+
+export function getViewSeriesField(event, now = new Date()) {
+  return `${now.toISOString().slice(0, 10)}|${event.country}|${event.page}`
+}
+
+export function summarizeViewSeries(entries = {}, filters) {
+  const countries = new Set()
+  const pageViews = { base: 0, freelance: 0 }
+  const filtered = new Map()
+
+  for (const [field, rawCount] of Object.entries(entries)) {
+    const [date, country, page, extra] = field.split('|')
+    const count = Number(rawCount)
+    if (extra || !isValidDate(date) || !country || !['base', 'freelance'].includes(page)) continue
+    if (!Number.isFinite(count) || count < 0) continue
+
+    countries.add(country)
+    pageViews[page] += count
+    if (date < filters.from || date > filters.to) continue
+    if (filters.country !== 'all' && filters.country !== country) continue
+
+    const point = filtered.get(date) || { base: 0, freelance: 0 }
+    point[page] += count
+    filtered.set(date, point)
+  }
+
+  if (filters.country !== 'all' && !countries.has(filters.country)) {
+    throw new RangeError('Invalid analytics filters')
+  }
+
+  const viewSeries = []
+  for (
+    let time = Date.parse(`${filters.from}T00:00:00.000Z`);
+    time <= Date.parse(`${filters.to}T00:00:00.000Z`);
+    time += dayMilliseconds
+  ) {
+    const date = new Date(time).toISOString().slice(0, 10)
+    viewSeries.push({ date, ...(filtered.get(date) || { base: 0, freelance: 0 }) })
+  }
+
+  return {
+    countries: [...countries].sort(),
+    pageViews,
+    viewSeries,
+  }
 }
 
 function parseBody(req) {
@@ -99,14 +176,15 @@ function normalizeRecent(items) {
     .filter(Boolean)
 }
 
-async function getStats() {
+async function getStats(filters) {
   if (redis) {
-    const [total, views, clicks, locations, recent] = await Promise.all([
+    const [total, views, clicks, locations, recent, viewSeries] = await Promise.all([
       redis.get(keys.total),
       redis.get(keys.views),
       redis.get(keys.clicks),
       redis.hgetall(keys.locations),
       redis.lrange(keys.recent, 0, 11),
+      redis.hgetall(keys.viewSeries),
     ])
 
     return {
@@ -119,6 +197,7 @@ async function getStats() {
         .map(([label, count]) => ({ label, count: Number(count) }))
         .sort((a, b) => b.count - a.count),
       recent: normalizeRecent(recent),
+      ...summarizeViewSeries(viewSeries || {}, filters),
     }
   }
 
@@ -132,23 +211,30 @@ async function getStats() {
       .map(([label, count]) => ({ label, count }))
       .sort((a, b) => b.count - a.count),
     recent: memory.recent.slice(0, 12),
+    ...summarizeViewSeries(Object.fromEntries(memory.viewSeries), filters),
   }
 }
 
 async function saveEvent(event) {
   if (redis) {
-    await Promise.all([
+    const writes = [
       redis.incr(keys.total),
       redis.incr(event.type === 'view' ? keys.views : keys.clicks),
       redis.hincrby(keys.locations, event.location, 1),
       redis.lpush(keys.recent, JSON.stringify(event)),
-    ])
+    ]
+    if (event.type === 'view') writes.push(redis.hincrby(keys.viewSeries, getViewSeriesField(event), 1))
+    await Promise.all(writes)
     await redis.ltrim(keys.recent, 0, 49)
     return
   }
 
   memory.total += 1
-  if (event.type === 'view') memory.views += 1
+  if (event.type === 'view') {
+    memory.views += 1
+    const field = getViewSeriesField(event)
+    memory.viewSeries.set(field, (memory.viewSeries.get(field) || 0) + 1)
+  }
   if (event.type === 'click') memory.clicks += 1
   memory.locations.set(event.location, (memory.locations.get(event.location) || 0) + 1)
   memory.recent.unshift(event)
@@ -161,21 +247,24 @@ export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
       if (req.query?.geo) return json(res, 200, getGeo(req))
-      return json(res, 200, await getStats())
+      return json(res, 200, await getStats(getAnalyticsFilters(req.query)))
     }
 
     if (req.method !== 'POST') return json(res, 405, { error: 'Method not allowed' })
 
     const body = parseBody(req)
     const type = body.type === 'view' ? 'view' : 'click'
-    const location = getLocation(req, `${body.locale || ''} / ${body.timeZone || ''}`.trim())
+    const path = String(body.path || '/')
+    const geo = getGeo(req, `${body.locale || ''} / ${body.timeZone || ''}`.trim())
     const event = {
+      country: geo.country || 'unknown',
       href: String(body.href || ''),
       id: String(body.id || 'unknown'),
       label: String(body.label || 'Lien inconnu'),
       locale: String(body.locale || ''),
-      location,
-      path: String(body.path || '/'),
+      location: geo.label,
+      page: normalizePage(path),
+      path,
       referrer: String(body.referrer || ''),
       timeZone: String(body.timeZone || ''),
       timestamp: String(body.timestamp || new Date().toISOString()),
@@ -184,7 +273,8 @@ export default async function handler(req, res) {
 
     await saveEvent(event)
     return json(res, 200, { ok: true })
-  } catch {
+  } catch (error) {
+    if (error instanceof RangeError) return json(res, 400, { error: 'Invalid analytics filters' })
     return json(res, 500, { error: 'Analytics unavailable' })
   }
 }
