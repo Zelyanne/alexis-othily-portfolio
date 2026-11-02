@@ -8,6 +8,23 @@ npm run dev
 npm run build
 ```
 
+## Design
+
+The main portfolio and `/freelance` share the Monumentale direction: pearl
+background, cobalt typography, the original portrait and subtle scroll motion.
+Projects and offers include scope details; existing regional prices and timelines
+are preserved. The CV remains at `/cv`.
+
+Typography is self-hosted **Outfit**, a geometric alternative, not Brodine.
+Its source and license are documented in `public/fonts/`. The exact Brodine
+webfont still requires a licensed kit.
+
+Focused checks:
+
+```bash
+node --test tests/*.test.ts api/analytics.test.js
+```
+
 Hidden analytics route: `/count`. It calls `/api/analytics` by default.
 
 Local memory is only a fallback. Do not use a local SQLite file on Vercel for this:
