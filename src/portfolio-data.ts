@@ -1,6 +1,7 @@
 export type VisitorRegion = 'westAfrica' | 'world'
 export type GeoResponse = { pricingRegion?: VisitorRegion }
 export const email = 'othilyjose14@gmail.com'
+export const huggingFaceHref = 'https://huggingface.co/Zelyanoth'
 
 export const projects = [
   {
@@ -87,6 +88,24 @@ export const projects = [
       role: 'Product backend',
     },
   },
+  {
+    slug: 'cahier-du-soir',
+    title: 'Cahier du Soir',
+    href: null,
+    preview: null,
+    stack: [],
+    fr: { label: 'Éducation', title: 'Cahier du Soir', summary: 'Une application éducative pour accompagner les apprentissages et les révisions.', role: 'Développement produit', result: 'Apprentissage et révision' },
+    en: { label: 'Education', title: 'Cahier du Soir', summary: 'An educational app supporting learning and revision.', role: 'Product development', result: 'Learning and revision' },
+  },
+  {
+    slug: 'nixia',
+    title: 'Nixia',
+    href: 'https://www.nixia.app/',
+    preview: null,
+    stack: [],
+    fr: { label: 'Espace de travail IA', title: 'Nixia', summary: 'Un espace de travail et assistant IA pour accompagner les tâches du quotidien.', role: 'Développement produit', result: 'Travail au quotidien' },
+    en: { label: 'AI workspace', title: 'Nixia', summary: 'An AI workspace and assistant supporting everyday work.', role: 'Product development', result: 'Everyday work' },
+  },
 ] as const
 
 export const domains = [
@@ -134,6 +153,14 @@ export const skills = [
 
 export const experiences = [
   {
+    frDate: 'Aujourd’hui',
+    enDate: 'Current',
+    frTitle: 'Développeur IA - Harnix',
+    enTitle: 'AI Developer - Harnix',
+    fr: 'Développement de solutions logicielles et d’intelligence artificielle.',
+    en: 'Software and artificial intelligence development.',
+  },
+  {
     frDate: 'Mai 2026',
     enDate: 'May 2026',
     frTitle: 'Freelance - Backend e-learning',
@@ -167,9 +194,9 @@ export const experiences = [
 ]
 
 export const credentials = [
-  ['Hugging Face', 'Certificate of Excellence - AI Agents'],
-  ['Zindi', '8e / 70 - Your Voice, Your Device, Your Language'],
-  ['Zindi', '47e / 245 - CGIAR Root Volume Estimation'],
+  ['Hugging Face', 'Certificate of Excellence - AI Agents', huggingFaceHref],
+  ['Zindi', '8e / 70 - Your Voice, Your Device, Your Language', 'https://zindi.africa/zc/xoHPRGQ'],
+  ['Zindi', '47e / 245 - CGIAR Root Volume Estimation', 'https://zindi.africa/zc/2XHGm9W'],
 ] as const
 
 export const services = [

@@ -4,7 +4,7 @@ import { analyticsEndpoint, analyticsDefaultFrom, analyticsDefaultTo, readLocalA
 import type { AnalyticsEvent, AnalyticsStats } from './analytics'
 import { email } from './portfolio-data'
 
-const cvUrl = new URL('../mqjoscgf-Alexis-OTHILY-CV.pdf', import.meta.url).href
+const cvUrl = '/Alexis-OTHILY-CV.pdf'
 
 export function CountPage() {
   const { language, text } = useCopy()

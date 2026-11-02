@@ -2,8 +2,8 @@ import { StrictMode, useEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Link, Outlet, RouterProvider, createRootRoute, createRoute, createRouter } from '@tanstack/react-router'
 import { useCopy } from './copy'
-import { analyticsEndpoint, trackLandingClick, trackLandingView } from './analytics'
-import { contactHref, credentials, domains, email, experiences, getVisitorRegion, projects, services, skills } from './portfolio-data'
+import { analyticsEndpoint, trackLandingView } from './analytics'
+import { contactHref, credentials, domains, email, experiences, getVisitorRegion, huggingFaceHref, projects, services, skills } from './portfolio-data'
 import type { GeoResponse, VisitorRegion } from './portfolio-data'
 import { CountPage, CvPage } from './secondary-pages'
 import { getHeroScrollProgress } from './hero-motion'
@@ -20,11 +20,11 @@ const ui = {
     scroll: 'DÉFILER POUR EXPLORER',
     introLabel: 'INTELLIGENCE ARTIFICIELLE / PRODUIT',
     introTitle: 'Des idées utiles. Des outils qui travaillent.',
-    introText: 'De la première idée à une solution utilisable, je conçois des systèmes IA pensés pour vos usages et vos équipes.',
+    introText: 'Développeur IA chez Harnix, basé à Cotonou. Je conçois des systèmes IA pensés pour vos usages et vos équipes, de la première idée à une solution utilisable.',
     projectLabel: '01 / PROJETS SÉLECTIONNÉS',
     projectTitle: 'Des idées qui prennent vie.',
-    projectIntro: 'Trois projets à la croisée de l’intelligence artificielle, du produit et de l’usage.',
-    projectDetails: 'Explorer le projet',
+    projectIntro: 'Des projets à la croisée de l’intelligence artificielle, du produit et de l’usage.',
+    projectDetails: 'Lire les détails',
     capabilities: 'Ce que le projet permet',
     servicesLabel: '02 / OFFRES & TARIFS',
     servicesTitle: 'Un périmètre clair. Un prix lisible.',
@@ -41,6 +41,10 @@ const ui = {
     experienceLabel: '04 / PARCOURS',
     experienceTitle: 'Apprendre en construisant.',
     credentials: 'CERTIFICATIONS & RÉSULTATS',
+    viewCv: 'Voir mon CV',
+    viewCertificate: 'Voir le certificat',
+    viewProfile: 'Voir mon profil',
+    certificates: 'Mes certifications',
     contactLabel: '05 / CONTACT',
     contactTitle: 'Une idée en tête ?',
     contactAccent: 'Parlons-en.',
@@ -58,11 +62,11 @@ const ui = {
     scroll: 'SCROLL TO EXPLORE',
     introLabel: 'ARTIFICIAL INTELLIGENCE / PRODUCT',
     introTitle: 'Useful ideas. Tools that work.',
-    introText: 'From the first idea to a usable solution, I design AI systems around your team and its real needs.',
+    introText: 'AI developer at Harnix, based in Cotonou. From the first idea to a usable solution, I design AI systems around your team and its real needs.',
     projectLabel: '01 / SELECTED PROJECTS',
     projectTitle: 'Ideas brought to life.',
-    projectIntro: 'Three projects connecting artificial intelligence, product design and real-world use.',
-    projectDetails: 'Explore the project',
+    projectIntro: 'Projects connecting artificial intelligence, product design and real-world use.',
+    projectDetails: 'Read the details',
     capabilities: 'What the project enables',
     servicesLabel: '02 / SERVICES & PRICING',
     servicesTitle: 'A clear scope. Transparent pricing.',
@@ -79,6 +83,10 @@ const ui = {
     experienceLabel: '04 / EXPERIENCE',
     experienceTitle: 'Learning by building.',
     credentials: 'CERTIFICATIONS & RESULTS',
+    viewCv: 'View my CV',
+    viewCertificate: 'View certificate',
+    viewProfile: 'View my profile',
+    certificates: 'My certifications',
     contactLabel: '05 / CONTACT',
     contactTitle: 'Have an idea in mind?',
     contactAccent: 'Let’s talk.',
@@ -228,7 +236,14 @@ function HomePage() {
 
       <section className="intro section page">
         <p className="eyebrow">{labels.introLabel}</p>
-        <div><h2>{labels.introTitle}</h2><p>{labels.introText}</p></div>
+        <div>
+          <h2>{labels.introTitle}</h2><p>{labels.introText}</p>
+          <div className="profileLinks">
+            <Link to="/cv">{labels.viewCv} ↗</Link>
+            <a href={huggingFaceHref} target="_blank" rel="noreferrer">Hugging Face ↗</a>
+            <a href="#credentials">{labels.certificates} ↓</a>
+          </div>
+        </div>
       </section>
 
       <section id="projects" className="section page">
@@ -236,19 +251,22 @@ function HomePage() {
         <div className="projectGrid">
           {projects.map((project, index) => (
             <article className="projectCard" key={project.slug}>
-              <a className="projectVisual" href={project.href} target="_blank" rel="noreferrer"
-                onClick={() => trackLandingClick(project.slug, project.title, project.href)}>
-                <img src={project.preview.src} alt={project.preview[language]} loading="lazy" width="1470" height="745" />
-                <span aria-hidden="true">↗</span>
-              </a>
-              <div className="cardTop"><span>{String(index + 1).padStart(2, '0')} / {project[language].label}</span><span>↗</span></div>
+              {project.preview ? (
+                <div className="projectVisual">
+                  <img src={project.preview.src} alt={project.preview[language]} loading="lazy" width="1470" height="745" />
+                </div>
+              ) : (
+                <div className={`projectVisual projectCover ${project.slug}`} aria-hidden="true">
+                  <span className="coverLabel">{project[language].label}</span><strong>{project.title}</strong><span className="coverMark">✳</span>
+                </div>
+              )}
+              <div className="cardTop"><span>{String(index + 1).padStart(2, '0')} / {project[language].label}</span></div>
               <h3>{project[language].title}</h3>
               <p className="projectSummary">{project[language].summary}</p>
               <dl className="projectMeta"><div><dt>{text.projectsSection.role}</dt><dd>{project[language].role}</dd></div><div><dt>{text.projectsSection.impact}</dt><dd>{project[language].result}</dd></div></dl>
               <div className="tags">{project.stack.map((item) => <span key={item}>{item}</span>)}</div>
-              <details className="projectDetails"><summary>{labels.projectDetails} <span aria-hidden="true">＋</span></summary><p>{labels.capabilities}</p><ul>{projectDetails[project.slug][language].map((item) => <li key={item}>{item}</li>)}</ul>
-                <a href={project.href} target="_blank" rel="noreferrer" onClick={() => trackLandingClick(project.slug, project.title, project.href)}>{text.projectsSection.visit} ↗</a>
-              </details>
+              {project.slug in projectDetails && <details className="projectDetails"><summary>{labels.projectDetails} <span aria-hidden="true">＋</span></summary><p>{labels.capabilities}</p><ul>{projectDetails[project.slug as keyof typeof projectDetails][language].map((item) => <li key={item}>{item}</li>)}</ul>
+              </details>}
             </article>
           ))}
         </div>
@@ -284,12 +302,26 @@ function HomePage() {
       <section id="experience" className="section page">
         <div className="sectionHead"><div><p className="eyebrow">{labels.experienceLabel}</p><h2>{labels.experienceTitle}</h2></div></div>
         <div className="timeline">{experiences.map((experience) => <article key={experience.frTitle || experience.title}><time>{language === 'fr' ? experience.frDate : experience.enDate}</time><div><h3>{language === 'fr' ? experience.frTitle || experience.title : experience.enTitle || experience.title}</h3><p>{experience[language]}</p></div></article>)}</div>
-        <div className="credentials"><span className="eyebrow">{labels.credentials}</span><div>{credentials.map(([source, label]) => <p key={label}><strong>{source}</strong> {label}</p>)}</div></div>
+        <div id="credentials" className="credentials">
+          <span className="eyebrow">{labels.credentials}</span>
+          <div className="credentialList">
+            {credentials.map(([source, label, href]) => (
+              <div className="credentialCard" key={label}>
+                <p><strong>{source}</strong> {label}</p>
+                <a href={href} target="_blank" rel="noreferrer"
+                  aria-label={`${source === 'Hugging Face' ? labels.viewProfile : labels.viewCertificate} : ${source} — ${label}`}>
+                  {source === 'Hugging Face' ? labels.viewProfile : labels.viewCertificate} ↗
+                </a>
+              </div>
+            ))}
+            <Link className="cvLink" to="/cv">{labels.viewCv} ↗</Link>
+          </div>
+        </div>
       </section>
 
       <section id="contact" className="contact section page">
         <p className="eyebrow">{labels.contactLabel}</p><h2>{labels.contactTitle}<br /><em>{labels.contactAccent}</em></h2><p className="contactText">{labels.contactText}</p>
-        <div className="contactLinks"><a className="contactEmail" href={contactHref}>{email} <span>↗</span></a><div><a href="tel:+2290191112696">+229 01 91 11 26 96 ↗</a><a href="https://github.com/Zelyanne" target="_blank" rel="noreferrer">GitHub ↗</a></div></div>
+        <div className="contactLinks"><a className="contactEmail" href={contactHref}>{email} <span>↗</span></a><div><a href="tel:+2290191112696">+229 01 91 11 26 96 ↗</a><a href="https://github.com/Zelyanne" target="_blank" rel="noreferrer">GitHub ↗</a><a href="https://www.linkedin.com/in/alexis-othily-273126212/" target="_blank" rel="noreferrer">LinkedIn ↗</a><a href={huggingFaceHref} target="_blank" rel="noreferrer">Hugging Face ↗</a></div></div>
       </section>
     </main>
   )

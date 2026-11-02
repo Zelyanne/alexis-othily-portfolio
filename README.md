@@ -19,6 +19,12 @@ Typography is self-hosted **Outfit**, a geometric alternative, not Brodine.
 Its source and license are documented in `public/fonts/`. The exact Brodine
 webfont still requires a licensed kit.
 
+The updated CV is served from `public/Alexis-OTHILY-CV.pdf`. Its original source
+PDF is retained at the repository root. `python3 scripts/update_cv.py` (requires
+`pypdf`) adds the current Harnix role using the original embedded fonts, preserving
+the two-page document, its existing content and certificate links. No start date
+has been assumed.
+
 Focused checks:
 
 ```bash
