@@ -15,13 +15,25 @@ export const projects = [
     },
     stack: ['LangGraph', 'TypeScript', 'Mistral', 'MCP'],
     tone: 'teal',
+    details: {
+      fr: {
+        type: 'Agent IA multi-outils',
+        description: 'Assistant exécutif intégré à un tableau de bord métier. L’utilisateur décrit son objectif en langage naturel ; l’agent le décompose en étapes, choisit les outils Google Workspace adaptés, puis prépare ou coordonne les actions nécessaires.',
+        highlights: ['Compréhension de demandes métier en langage naturel', 'Création et mise à jour de contenus dans Docs, Sheets et Slides', 'Connexion d’outils et de services via MCP', 'Planification d’actions avec validation humaine'],
+      },
+      en: {
+        type: 'Multi-tool AI agent',
+        description: 'Executive assistant embedded in a business dashboard. The user describes an objective in natural language; the agent breaks it into steps, selects the right Google Workspace tools, then prepares or coordinates the required actions.',
+        highlights: ['Natural-language understanding of business requests', 'Creating and updating content in Docs, Sheets and Slides', 'Tool and service connections through MCP', 'Scheduled actions with human validation'],
+      },
+    },
     fr: {
       label: 'Assistant IA',
       title: 'AI Assistant - Executive Hub',
       summary:
         "Agent IA orienté Google Workspace pour orchestrer des tâches bureautiques, connecter des outils et planifier des actions différées.",
       result: 'Orchestration Google Workspace',
-      role: 'Architecture agentique',
+      role: 'Agent IA multi-outils',
     },
     en: {
       label: 'AI Assistant',
@@ -29,7 +41,7 @@ export const projects = [
       summary:
         'Google Workspace-oriented AI agent for orchestrating office tasks, connecting tools and scheduling deferred actions.',
       result: 'Google Workspace orchestration',
-      role: 'Agent architecture',
+      role: 'Multi-tool AI agent',
     },
   },
   {
@@ -43,13 +55,25 @@ export const projects = [
     },
     stack: ['LangGraph', 'Python', 'Mistral'],
     tone: 'rose',
+    details: {
+      fr: {
+        type: 'Agent IA d’automatisation',
+        description: 'Agent de community management qui transforme un thème, une audience et quelques objectifs en campagne de contenu. Il propose les angles éditoriaux, rédige les posts, organise les variantes et prépare un calendrier prêt à être utilisé.',
+        highlights: ['Génération de contenus à partir d’un brief court', 'Proposition d’angles et de formats éditoriaux', 'Structuration de posts LinkedIn prêts à relire', 'Calendrier éditorial et planification'],
+      },
+      en: {
+        type: 'AI automation agent',
+        description: 'Community-management agent that turns a topic, an audience and a few goals into a content campaign. It proposes editorial angles, writes the posts, organizes variations and prepares a usable publishing calendar.',
+        highlights: ['Content generation from a short brief', 'Editorial-angle and format suggestions', 'Structured LinkedIn posts ready for review', 'Editorial calendar and scheduling'],
+      },
+    },
     fr: {
       label: 'Automatisation',
       title: 'Lin - Community Manager IA',
       summary:
         'Pipeline agentique qui transforme des mots-clés en posts LinkedIn structurés, planifiés et prêts à publier.',
       result: 'Génération + planification',
-      role: 'Pipeline IA',
+      role: 'Agent IA d’automatisation',
     },
     en: {
       label: 'Automation',
@@ -57,7 +81,7 @@ export const projects = [
       summary:
         'Agentic pipeline that turns keywords into structured, scheduled LinkedIn posts ready to publish.',
       result: 'Generation + scheduling',
-      role: 'AI pipeline',
+      role: 'AI automation agent',
     },
   },
   {
@@ -71,13 +95,25 @@ export const projects = [
     },
     stack: ['Python', 'Flask', 'SQL'],
     tone: 'amber',
+    details: {
+      fr: {
+        type: 'Plateforme EdTech',
+        description: 'Plateforme e-learning où les apprenants accèdent à leurs parcours, suivent des modules et passent des quiz. Le backend gère les comptes, les contenus, les résultats et la progression, tandis que les administrateurs peuvent organiser l’offre pédagogique.',
+        highlights: ['Comptes utilisateurs et authentification', 'Gestion des cours, modules et ressources', 'Suivi individuel de la progression', 'Quiz, résultats et évaluations automatisées'],
+      },
+      en: {
+        type: 'EdTech platform',
+        description: 'E-learning platform where learners access learning paths, complete modules and take quizzes. The backend manages accounts, content, results and progress, while administrators organize the learning offering.',
+        highlights: ['User accounts and authentication', 'Course, module and resource management', 'Individual progress tracking', 'Quizzes, results and automated evaluations'],
+      },
+    },
     fr: {
       label: 'EdTech',
       title: 'Plateforme e-learning',
       summary:
         'Backend Python/Flask avec gestion utilisateurs, contenus pédagogiques, progression, quiz et évaluations automatiques.',
       result: 'API e-learning complète',
-      role: 'Backend produit',
+      role: 'Plateforme EdTech',
     },
     en: {
       label: 'EdTech',
@@ -85,7 +121,7 @@ export const projects = [
       summary:
         'Python/Flask backend with user management, learning content, progress tracking, quizzes and automated evaluations.',
       result: 'Complete e-learning API',
-      role: 'Product backend',
+      role: 'EdTech platform',
     },
   },
   {
@@ -93,18 +129,42 @@ export const projects = [
     title: 'Cahier du Soir',
     href: null,
     preview: null,
-    stack: [],
-    fr: { label: 'Éducation', title: 'Cahier du Soir', summary: 'Une application éducative pour accompagner les apprentissages et les révisions.', role: 'Développement produit', result: 'Apprentissage et révision' },
-    en: { label: 'Education', title: 'Cahier du Soir', summary: 'An educational app supporting learning and revision.', role: 'Product development', result: 'Learning and revision' },
+    stack: ['Flutter', 'NestJS', 'LangGraph', 'TypeScript'],
+    details: {
+      fr: {
+        type: 'Tuteur IA agentique',
+        description: 'Application mobile et web pour réviser avec un tuteur IA. L’élève démarre une séance à partir d’une leçon ou d’un exercice ; le tuteur pose des questions, analyse les réponses, propose des indices graduels et termine par un récapitulatif de progression.',
+        highlights: ['Séances pédagogiques guidées étape par étape', 'Questions adaptées au contenu étudié', 'Évaluation des réponses et indices progressifs', 'Historique et suivi de progression sur mobile et web'],
+      },
+      en: {
+        type: 'Agentic AI tutor',
+        description: 'Mobile and web revision app built around an AI tutor. A learner starts a session from a lesson or exercise; the tutor asks questions, analyzes answers, provides progressive hints and ends with a progress recap.',
+        highlights: ['Step-by-step guided learning sessions', 'Questions adapted to the studied material', 'Answer assessment and progressive hints', 'History and progress tracking across mobile and web'],
+      },
+    },
+    fr: { label: 'Éducation', title: 'Cahier du Soir', summary: 'Application éducative avec tutorat IA guidé, suivi de progression et parcours de révision personnalisés.', role: 'Tuteur IA agentique', result: 'Tutorat IA personnalisé' },
+    en: { label: 'Education', title: 'Cahier du Soir', summary: 'Educational app with guided AI tutoring, progress tracking and personalized revision paths.', role: 'Agentic AI tutor', result: 'Personalized AI tutoring' },
   },
   {
     slug: 'nixia',
     title: 'Nixia',
     href: 'https://www.nixia.app/',
     preview: null,
-    stack: [],
-    fr: { label: 'Espace de travail IA', title: 'Nixia', summary: 'Un espace de travail et assistant IA pour accompagner les tâches du quotidien.', role: 'Développement produit', result: 'Travail au quotidien' },
-    en: { label: 'AI workspace', title: 'Nixia', summary: 'An AI workspace and assistant supporting everyday work.', role: 'Product development', result: 'Everyday work' },
+    stack: ['Python', 'TypeScript', 'vLLM', 'SGLang', 'MCP'],
+    details: {
+      fr: {
+        type: 'Assistant IA généraliste',
+        description: 'Assistant conversationnel comparable dans son usage à ChatGPT ou Claude, mais pensé comme un espace de travail complet. L’utilisateur peut discuter, analyser des fichiers, produire des documents et confier une demande complexe à des agents spécialisés qui sélectionnent les outils nécessaires.',
+        highlights: ['Conversations multi-étapes et compréhension de documents', 'Création et analyse de documents, présentations et feuilles de calcul', 'Orchestration Google Workspace et outils connectés', 'Coordination d’agents spécialisés selon la tâche', 'Inférence optimisée avec vLLM et SGLang'],
+      },
+      en: {
+        type: 'General-purpose AI assistant',
+        description: 'Conversational assistant similar in use to ChatGPT or Claude, but designed as a complete workspace. Users can chat, analyze files, produce documents and delegate complex requests to specialized agents that select the required tools.',
+        highlights: ['Multi-step conversations and document understanding', 'Creating and analyzing documents, presentations and spreadsheets', 'Google Workspace and connected-tool orchestration', 'Specialized-agent coordination based on the task', 'Inference optimized with vLLM and SGLang'],
+      },
+    },
+    fr: { label: 'Espace de travail IA', title: 'Nixia', summary: 'Assistant IA conversationnel dans l’esprit de ChatGPT ou Claude, enrichi d’agents spécialisés, d’outils connectés et d’une inférence optimisée.', role: 'Assistant IA généraliste', result: 'Orchestration Google Workspace' },
+    en: { label: 'AI workspace', title: 'Nixia', summary: 'Conversational AI assistant similar in use to ChatGPT or Claude, enhanced with specialized agents, connected tools and optimized inference.', role: 'General-purpose AI assistant', result: 'Google Workspace orchestration' },
   },
 ] as const
 

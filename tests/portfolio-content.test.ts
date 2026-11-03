@@ -29,6 +29,9 @@ test('real project destinations, translated content and preview assets are retai
       assert.ok(project[language].title)
       assert.ok(project[language].summary)
       assert.ok(project[language].role)
+      assert.ok(project.details[language].type)
+      assert.ok(project.details[language].description)
+      assert.ok(project.details[language].highlights.length >= 4)
       if (project.preview) assert.ok(project.preview[language])
     }
     if (project.preview) await access(new URL(`../public${project.preview.src}`, import.meta.url))
@@ -36,9 +39,11 @@ test('real project destinations, translated content and preview assets are retai
 })
 
 test('new project teasers and professional credentials stay verifiable', () => {
-  assert.deepEqual(projects.slice(-2).map(({ slug, preview }) => [slug, preview]), [
-    ['cahier-du-soir', null], ['nixia', null],
+  assert.deepEqual(projects.slice(-2).map(({ slug, preview, stack, fr, en }) => [slug, preview, stack, fr.role, fr.result, en.role, en.result]), [
+    ['cahier-du-soir', null, ['Flutter', 'NestJS', 'LangGraph', 'TypeScript'], 'Tuteur IA agentique', 'Tutorat IA personnalisé', 'Agentic AI tutor', 'Personalized AI tutoring'],
+    ['nixia', null, ['Python', 'TypeScript', 'vLLM', 'SGLang', 'MCP'], 'Assistant IA généraliste', 'Orchestration Google Workspace', 'General-purpose AI assistant', 'Google Workspace orchestration'],
   ])
+  assert.doesNotMatch(JSON.stringify(projects.find(({ slug }) => slug === 'nixia')), /qwen/i)
   assert.equal(experiences[0].frTitle, 'Développeur IA Freelance - Harnix | Calavi')
   assert.equal(experiences[0].enTitle, 'Freelance AI Developer - Harnix | Calavi')
   assert.equal(experiences[0].frDate, 'Contrat de prestation - Aujourd’hui')
@@ -55,4 +60,13 @@ test('new project teasers and professional credentials stay verifiable', () => {
 test('the updated CV is a published PDF', async () => {
   const pdf = await readFile(new URL('../public/Alexis-OTHILY-CV.pdf', import.meta.url))
   assert.equal(pdf.subarray(0, 5).toString(), '%PDF-')
+})
+
+test('project details use an accessible modal', async () => {
+  const source = await readFile(new URL('../src/main.tsx', import.meta.url), 'utf8')
+  assert.match(source, /<dialog/)
+  assert.match(source, /showModal\(\)/)
+  assert.match(source, /scrollTo\(0, 0\)/)
+  assert.match(source, /aria-labelledby=/)
+  assert.match(source, /onClose=/)
 })

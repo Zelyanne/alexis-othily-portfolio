@@ -24,8 +24,11 @@ const ui = {
     projectLabel: '01 / PROJETS SÉLECTIONNÉS',
     projectTitle: 'Des idées qui prennent vie.',
     projectIntro: 'Des projets à la croisée de l’intelligence artificielle, du produit et de l’usage.',
-    projectDetails: 'Lire les détails',
-    capabilities: 'Ce que le projet permet',
+    projectDetails: 'Voir plus de détails',
+    projectType: 'Type de projet',
+    whatItDoes: 'Ce que fait l’application',
+    capabilities: 'Ce que j’ai construit',
+    closeProject: 'Fermer les détails du projet',
     servicesLabel: '02 / OFFRES & TARIFS',
     servicesTitle: 'Un périmètre clair. Un prix lisible.',
     servicesIntro: 'Des repères pour démarrer : chaque projet est précisé selon vos besoins et les outils à connecter.',
@@ -66,8 +69,11 @@ const ui = {
     projectLabel: '01 / SELECTED PROJECTS',
     projectTitle: 'Ideas brought to life.',
     projectIntro: 'Projects connecting artificial intelligence, product design and real-world use.',
-    projectDetails: 'Read the details',
-    capabilities: 'What the project enables',
+    projectDetails: 'More details',
+    projectType: 'Project type',
+    whatItDoes: 'What the app does',
+    capabilities: 'What I built',
+    closeProject: 'Close project details',
     servicesLabel: '02 / SERVICES & PRICING',
     servicesTitle: 'A clear scope. Transparent pricing.',
     servicesIntro: 'Starting points for a conversation: each project is shaped around your needs and the tools to connect.',
@@ -95,21 +101,6 @@ const ui = {
     top: 'Back to top',
     openMenu: 'Open menu',
     closeMenu: 'Close menu',
-  },
-} as const
-
-const projectDetails = {
-  'ai-assistant': {
-    fr: ['Orchestration de tâches Google Workspace', 'Connexion d’outils via MCP', 'Planification d’actions différées'],
-    en: ['Google Workspace task orchestration', 'Tool connections via MCP', 'Scheduled deferred actions'],
-  },
-  'lin-automation': {
-    fr: ['Mots-clés transformés en contenus', 'Posts LinkedIn structurés', 'Planification des publications'],
-    en: ['Keywords turned into content', 'Structured LinkedIn posts', 'Post scheduling'],
-  },
-  'e-learning': {
-    fr: ['Gestion des utilisateurs et des contenus', 'Suivi de la progression', 'Quiz et évaluations automatiques'],
-    en: ['User and learning-content management', 'Progress tracking', 'Quizzes and automated evaluations'],
   },
 } as const
 
@@ -173,12 +164,21 @@ function HomePage() {
   const { language, text } = useCopy()
   const labels = ui[language]
   const [visitorRegion, setVisitorRegion] = useState<VisitorRegion>(getVisitorRegion)
+  const [selectedProject, setSelectedProject] = useState<(typeof projects)[number] | null>(null)
   const regionChosen = useRef(false)
   const heroScene = useRef<HTMLElement>(null)
+  const projectDialog = useRef<HTMLDialogElement>(null)
+  const projectDialogPanel = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     trackLandingView(text.count.viewLabel)
   }, [text.count.viewLabel])
+
+  useEffect(() => {
+    if (!selectedProject || !projectDialog.current) return
+    projectDialogPanel.current?.scrollTo(0, 0)
+    if (!projectDialog.current.open) projectDialog.current.showModal()
+  }, [selectedProject])
 
   useEffect(() => {
     let active = true
@@ -265,12 +265,28 @@ function HomePage() {
               <p className="projectSummary">{project[language].summary}</p>
               <dl className="projectMeta"><div><dt>{text.projectsSection.role}</dt><dd>{project[language].role}</dd></div><div><dt>{text.projectsSection.impact}</dt><dd>{project[language].result}</dd></div></dl>
               <div className="tags">{project.stack.map((item) => <span key={item}>{item}</span>)}</div>
-              {project.slug in projectDetails && <details className="projectDetails"><summary>{labels.projectDetails} <span aria-hidden="true">＋</span></summary><p>{labels.capabilities}</p><ul>{projectDetails[project.slug as keyof typeof projectDetails][language].map((item) => <li key={item}>{item}</li>)}</ul>
-              </details>}
+              <button className="projectDetailsButton" type="button" onClick={() => setSelectedProject(project)}>{labels.projectDetails} <span aria-hidden="true">↗</span></button>
             </article>
           ))}
         </div>
       </section>
+
+      <dialog className="projectDialog" ref={projectDialog} onClose={() => setSelectedProject(null)}
+        onClick={(event) => { if (event.target === event.currentTarget) projectDialog.current?.close() }}
+        aria-labelledby={selectedProject ? `project-dialog-${selectedProject.slug}` : undefined}
+        aria-describedby={selectedProject ? `project-dialog-description-${selectedProject.slug}` : undefined}>
+        {selectedProject && <>
+          <button className="projectDialogClose" type="button" aria-label={labels.closeProject} onClick={() => projectDialog.current?.close()}>×</button>
+          <div className="projectDialogPanel" ref={projectDialogPanel}>
+          <p className="eyebrow projectDialogType">{labels.projectType} / {selectedProject.details[language].type}</p>
+          <h2 id={`project-dialog-${selectedProject.slug}`}>{selectedProject[language].title}</h2>
+          <div className="projectDialogDescription"><h3>{labels.whatItDoes}</h3><p className="projectDialogLead" id={`project-dialog-description-${selectedProject.slug}`}>{selectedProject.details[language].description}</p></div>
+          <dl className="projectDialogMeta"><div><dt>{text.projectsSection.role}</dt><dd>{selectedProject[language].role}</dd></div><div><dt>{text.projectsSection.impact}</dt><dd>{selectedProject[language].result}</dd></div></dl>
+          <div className="projectDialogHighlights"><h3>{labels.capabilities}</h3><ul>{selectedProject.details[language].highlights.map((item) => <li key={item}>{item}</li>)}</ul></div>
+          <div className="tags">{selectedProject.stack.map((item) => <span key={item}>{item}</span>)}</div>
+          </div>
+        </>}
+      </dialog>
 
       <section id="services" className="section page">
         <div className="sectionHead"><div><p className="eyebrow">{labels.servicesLabel}</p><h2>{labels.servicesTitle}</h2></div><p>{labels.servicesIntro}</p></div>
