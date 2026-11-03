@@ -153,12 +153,12 @@ export const skills = [
 
 export const experiences = [
   {
-    frDate: 'Aujourd’hui',
-    enDate: 'Current',
-    frTitle: 'Développeur IA - Harnix',
-    enTitle: 'AI Developer - Harnix',
-    fr: 'Développement de solutions logicielles et d’intelligence artificielle.',
-    en: 'Software and artificial intelligence development.',
+    frDate: 'Contrat de prestation - Aujourd’hui',
+    enDate: 'Independent contract - Current',
+    frTitle: 'Développeur IA Freelance - Harnix | Calavi',
+    enTitle: 'Freelance AI Developer - Harnix | Calavi',
+    fr: 'Architecture du harness agentique de Nixia : sélection des modèles et orchestration d’agents spécialisés. Optimisation de l’inférence, triplant ainsi la vitesse d’exécution des requêtes.',
+    en: 'Architecture of Nixia’s agent harness, covering model selection and specialized-agent orchestration. Inference optimization tripled request execution speed.',
   },
   {
     frDate: 'Mai 2026',

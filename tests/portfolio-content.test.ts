@@ -39,8 +39,12 @@ test('new project teasers and professional credentials stay verifiable', () => {
   assert.deepEqual(projects.slice(-2).map(({ slug, preview }) => [slug, preview]), [
     ['cahier-du-soir', null], ['nixia', null],
   ])
-  assert.equal(experiences[0].frTitle, 'Développeur IA - Harnix')
-  assert.equal(experiences[0].enDate, 'Current')
+  assert.equal(experiences[0].frTitle, 'Développeur IA Freelance - Harnix | Calavi')
+  assert.equal(experiences[0].enTitle, 'Freelance AI Developer - Harnix | Calavi')
+  assert.equal(experiences[0].frDate, 'Contrat de prestation - Aujourd’hui')
+  assert.equal(experiences[0].enDate, 'Independent contract - Current')
+  assert.match(experiences[0].fr, /triplant ainsi la vitesse/)
+  assert.match(experiences[0].en, /tripled request execution speed/)
   assert.equal(huggingFaceHref, 'https://huggingface.co/Zelyanoth')
   assert.equal(credentials[0][2], huggingFaceHref)
   assert.deepEqual(credentials.slice(1).map(([, , href]) => href), [

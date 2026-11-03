@@ -74,7 +74,7 @@ const copy = {
       eyebrow: 'CV',
       h1: 'Alexis Othily - Développeur IA',
       lead:
-        'Mon parcours, mes projets et mes certifications. Mise en page du CV d’origine conservée, avec mon poste actuel de développeur IA chez Harnix.',
+        'Mon parcours, mes projets et mes certifications, avec ma mission actuelle de développeur IA freelance chez Harnix à Calavi.',
       open: 'Ouvrir le PDF',
       contact: 'Me contacter',
       fallback: 'Ouvrir le CV PDF',
@@ -194,7 +194,7 @@ const copy = {
       eyebrow: 'Resume',
       h1: 'Alexis Othily - AI Developer',
       lead:
-        'My experience, projects and certifications. The original CV layout is preserved, with my current AI developer role at Harnix.',
+        'My experience, projects and certifications, including my current freelance AI developer contract with Harnix in Calavi.',
       open: 'Open PDF',
       contact: 'Contact me',
       fallback: 'Open resume PDF',
